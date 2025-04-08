@@ -18,7 +18,7 @@ loadAllImages().then(() => {
         health: initialConfig.game_state.player1Health,
         speed: 5,
         map: initialConfig.map,
-        staggerFrame: 60,
+        staggerFrame: 30,
         input: new Input(),
     }
 
@@ -31,7 +31,7 @@ loadAllImages().then(() => {
         health: initialConfig.game_state.player1Health,
         speed: 5,    
         map: initialConfig.map,
-        staggerFrame: 60,
+        staggerFrame: 30,
     }
 
     const config_Server = {

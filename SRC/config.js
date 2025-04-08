@@ -10,52 +10,52 @@ function loadImage(src) {
 }
 
 const playerSpriteMap = {
-    idle: {image:loadImage('../Assets/Sprites/Fighter/Idle.png'),
+    idle: {image:loadImage('../Assets/Sprites/Shinobi/Idle.png'),
            frames:6,
            frameWidth: 128,
            frameHeight: 128,
     },
     attack1: {
-           image:loadImage('../Assets/Sprites/Fighter/Attack_1.png'),
-           frames: 4,
+           image:loadImage('../Assets/Sprites/Shinobi/Attack_1.png'),
+           frames: 5,
            frameWidth: 128,
            frameHeight: 128,
         },
     attack2: {
-            image:loadImage('../Assets/Sprites/Fighter/Attack_2.png'),
+            image:loadImage('../Assets/Sprites/Shinobi/Attack_2.png'),
             frames: 3,
             frameWidth: 128,
             frameHeight: 128,
         },
     attack3: {
-            image:loadImage('../Assets/Sprites/Fighter/Attack_3.png'),
+            image:loadImage('../Assets/Sprites/Shinobi/Attack_3.png'),
             frames: 4,
             frameWidth: 128,
             frameHeight: 128,
         },
     defend:{
-            image:loadImage('../Assets/Sprites/Fighter/Shield.png'),
-            frames: 2,
+            image:loadImage('../Assets/Sprites/Shinobi/Shield.png'),
+            frames: 4,
             frameWidth: 128,
             frameHeight: 128,
 
     },
     jump:{
-            image:loadImage('../Assets/Sprites/Fighter/Jump.png'),
-            frames: 6,
+            image:loadImage('../Assets/Sprites/Shinobi/Jump.png'),
+            frames: 12,
             frameWidth: 128,
             frameHeight: 128,
     },
     walk:{
-            image:loadImage('../Assets/Sprites/Fighter/Run.png'),
-            frames: 7,
+            image:loadImage('../Assets/Sprites/Shinobi/Run.png'),
+            frames: 8,
             frameWidth: 128,
             frameHeight: 128,
     },
     
     walk_left:{
-        image:loadImage('../Assets/Sprites/Fighter/Run_left.png'),
-        frames: 7,
+        image:loadImage('../Assets/Sprites/Shinobi/Run_left.png'),
+        frames: 8,
         frameWidth: 128,
         frameHeight: 128,
     },
@@ -84,7 +84,7 @@ const EnemySpriteMap = {
  attack3: {
          image:loadImage('../Assets/Sprites/Samurai/Attack_3.png'),
          frames: 3,
-         frameWidth: 1280,
+         frameWidth: 128,
          frameHeight: 128,
      },
  defend:{
