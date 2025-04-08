@@ -21,6 +21,8 @@ export class CollisionHandler {
 
     // Verifica se o jogador colide com o outro jogador
     isCollidingWithPlayer(player) {
+
+        return false; // Colisão não implementada ainda
         const { x: playerX, y: playerY, width: playerWidth, height: playerHeight } = player;
         const { x: otherPlayerX, y: otherPlayerY, width: otherPlayerWidth, height: otherPlayerHeight } = this.otherPlayer;
 

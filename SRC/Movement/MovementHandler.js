@@ -9,7 +9,7 @@ export class MovementHandler {
     // Movimento para a esquerda
     moveLeft() {
         if (!this.collisionHandler.isCollidingWithMap(this.entity) && !this.collisionHandler.isCollidingWithPlayer(this.entity)) {
-            this.velocity.x = -this.speed;
+            this.update({x: -this.speed, y: 0 });
         } else {
             this.velocity.x = 0;
         }
@@ -18,7 +18,7 @@ export class MovementHandler {
     // Movimento para a direita
     moveRight() {
         if (!this.collisionHandler.isCollidingWithMap(this.entity) && !this.collisionHandler.isCollidingWithPlayer(this.entity)) {
-            this.velocity.x = this.speed;
+            this.update({x: this.speed, y: 0 });
         } else {
             this.velocity.x = 0;
         }
@@ -53,8 +53,8 @@ export class MovementHandler {
     }
 
     // Atualiza a posição do jogador
-    update() {
-        this.entity.x += this.velocity.x;
-        this.entity.y += this.velocity.y;
+    update(deslocamento) {
+        this.entity.x += deslocamento.x;
+        this.entity.y += deslocamento.y;
     }
 }
