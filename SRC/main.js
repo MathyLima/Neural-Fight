@@ -12,8 +12,8 @@ loadAllImages().then(() => {
     const config_Player1 = {
         x: initialConfig.fighters.player1.x,
         y: initialConfig.fighters.player1.y,
-        width: 200,
-        height: 250,
+        width: 300,
+        height: 350,
         sprite_map: initialConfig.fighters.player1.sprite_map,
         health: initialConfig.game_state.player1Health,
         speed: 5,
@@ -25,8 +25,8 @@ loadAllImages().then(() => {
     const config_Player2 = {
         x: initialConfig.fighters.enemy1.x,
         y: initialConfig.fighters.enemy1.y,
-        width: 200,
-        height: 250,
+        width: 300,
+        height: 350,
         sprite_map: initialConfig.fighters.enemy1.sprite_map,
         health: initialConfig.game_state.player1Health,
         speed: 5,    

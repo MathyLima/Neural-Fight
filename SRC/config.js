@@ -70,32 +70,32 @@ const EnemySpriteMap = {
         frameHeight: 128,
  },
  attack1: {
-        image:loadImage('../Assets/Sprites/Samurai/Attack_1.png'),
+        image:loadImage('../Assets/Sprites/Samurai/Attack_1_left.png'),
         frames: 6,
         frameWidth: 128,
         frameHeight: 128,
      },
  attack2: {
-         image:loadImage('../Assets/Sprites/Samurai/Attack_2.png'),
+         image:loadImage('../Assets/Sprites/Samurai/Attack_2_left.png'),
          frames: 4,
          frameWidth: 128,
          frameHeight: 128,
      },
  attack3: {
-         image:loadImage('../Assets/Sprites/Samurai/Attack_3.png'),
+         image:loadImage('../Assets/Sprites/Samurai/Attack_3_left.png'),
          frames: 3,
          frameWidth: 128,
          frameHeight: 128,
      },
  defend:{
-         image:loadImage('../Assets/Sprites/Samurai/Shield.png'),
+         image:loadImage('../Assets/Sprites/Samurai/Shield_left.png'),
          frames: 2,
          frameWidth: 128,
          frameHeight: 128,
 
  },
  jump:{
-         image:loadImage('../Assets/Sprites/Samurai/Jump.png'),
+         image:loadImage('../Assets/Sprites/Samurai/Jump_left.png'),
          frames: 6,
          frameWidth: 128,
          frameHeight: 128,
