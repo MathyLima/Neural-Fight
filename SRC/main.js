@@ -55,22 +55,52 @@ loadAllImages().then(() => {
         };
     }
 
+    let isGameStarted = false; // Variável para controlar o estado do jogo
+    const backgroundMusic = new Audio('../Assets/Audios/Background.mp3'); // Substitua pelo caminho da sua música
 
-    function animate() {
+    function drawBackgroundWithMessage() {
+        // Renderiza o fundo
         context.clearRect(0, 0, canvas.width, canvas.height);
         renderer.draw(drawImage(map.background, 0, 0, map.width, map.height));
-        renderer.draw((ctx) => {
-            player1.render(ctx);
-        });
-
-        renderer.draw((ctx) => {
-            player2.render(ctx);
-        });
-        
+    
+        // Renderiza a mensagem
+        context.fillStyle = 'white'; // Cor do texto
+        context.font = '30px Arial'; // Fonte do texto
+        context.textAlign = 'center'; // Alinhamento do texto
+        context.fillText('Clique no jogo para iniciar', canvas.width / 2, canvas.height / 2);
+    }
+    
+    // Adiciona um evento de clique para iniciar o jogo
+    canvas.addEventListener('click', () => {
+        if (!isGameStarted) {
+            isGameStarted = true; // Atualiza o estado para iniciar o jogo
+            backgroundMusic.volume = 0.1; // Ajusta o volume da música
+            backgroundMusic.loop = true; // Define a música para tocar em loop
+            backgroundMusic.play().catch((error) => {
+                console.error('Erro ao reproduzir a música:', error);
+            });
+        }
+    });
+    
+    function animate() {
+        if (!isGameStarted) {
+            drawBackgroundWithMessage(); // Renderiza apenas o fundo e a mensagem
+        } else {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            renderer.draw(drawImage(map.background, 0, 0, map.width, map.height));
+            renderer.draw((ctx) => {
+                player1.render(ctx);
+            });
+    
+            renderer.draw((ctx) => {
+                player2.render(ctx);
+            });
+        }
+    
         requestAnimationFrame(animate);
     }
-
-    animate()
+    
+    animate();
 
 }).catch((error) => {
     console.error('Error loading images:', error);

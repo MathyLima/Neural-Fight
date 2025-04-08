@@ -1,5 +1,6 @@
 import { MovementHandler } from '../Movement/MovementHandler.js';
 import { CollisionHandler } from '../Movement/CollisionHandler.js';
+import { HealthBar } from '../UI/HealthBar.js';
 export class Fighter {
     constructor(config) {
         this.x = config.x;
@@ -17,6 +18,15 @@ export class Fighter {
         this.isJumping = false;
         this.animationState = 'idle';
         this.sprite_map = config.sprite_map;
+
+        this.healthBar = new HealthBar({
+            x: this.x,
+            y: 10, // Posiciona a barra acima do lutador
+            width: this.width,
+            height: 30,
+            maxHealth: this.maxHealth,
+            currentHealth: this.health,
+        });
         // Instâncias para controle de movimento e colisões
         // vou precisar colocar uma flag para saber se está em uma ação, seja correndo, atacando ou defendendo
         this.isActioning = false; // Flag para saber se o lutador está em uma ação (movendo, atacando, defendendo)
@@ -125,6 +135,9 @@ export class Fighter {
             this.width,
             this.height
         );
+
+        this.healthBar.render(context);
+
         
         // Desenha um quadrado ao redor do lutador para fins de depuração
         //context.strokeStyle = 'red'; // Cor do quadrado
