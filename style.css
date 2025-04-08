@@ -4,6 +4,11 @@
     left: 50%;
     transform: translate(-50%,-50%);
     position: absolute;
-    width: 80vw;
-    height: 70vh;
+    width: 100vw;
+    height: 100vh;
+}
+body{
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
 }

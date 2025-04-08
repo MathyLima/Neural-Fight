@@ -8,7 +8,7 @@ export class MovementHandler {
 
     // Movimento para a esquerda
     moveLeft() {
-        if (!this.collisionHandler.isCollidingWithMap(this.entity) && !this.collisionHandler.isCollidingWithPlayer(this.entity)) {
+        if (!this.collisionHandler.isCollidingWithMap(this.entity,-this.speed) && !this.collisionHandler.isCollidingWithPlayer(this.entity,-this.speed)) {
             this.update({x: -this.speed, y: 0 });
         } else {
             this.velocity.x = 0;
@@ -17,7 +17,7 @@ export class MovementHandler {
 
     // Movimento para a direita
     moveRight() {
-        if (!this.collisionHandler.isCollidingWithMap(this.entity) && !this.collisionHandler.isCollidingWithPlayer(this.entity)) {
+        if (!this.collisionHandler.isCollidingWithMap(this.entity,this.speed) && !this.collisionHandler.isCollidingWithPlayer(this.entity,this.speed)) {
             this.update({x: this.speed, y: 0 });
         } else {
             this.velocity.x = 0;

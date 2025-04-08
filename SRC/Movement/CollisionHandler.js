@@ -5,11 +5,9 @@ export class CollisionHandler {
     }
 
     // Verifica se o jogador colide com os limites do mapa
-    isCollidingWithMap(player) {
+    isCollidingWithMap(player, deslocamento) {
         const { x, y, width, height } = player;
-
-        // Verifica se o jogador está dentro dos limites horizontais e verticais do mapa
-        if (x < this.mapBounds.xMin || x + width > this.mapBounds.xMax) {
+        if (x + deslocamento < this.mapBounds.xMin || x + width + deslocamento > this.mapBounds.xMax) {
             return true; // Colidiu com o limite X
         }
         if (y < this.mapBounds.yMin || y + height > this.mapBounds.yMax) {
@@ -19,17 +17,28 @@ export class CollisionHandler {
         return false;
     }
 
-    // Verifica se o jogador colide com o outro jogador
-    isCollidingWithPlayer(player) {
+    // Verifica colisão apenas na segunda metade do otherPlayer
+    checkCollision(playerX, playerY, playerWidth, playerHeight,
+        otherPlayerX, otherPlayerY, otherPlayerWidth, otherPlayerHeight) {
 
-        return false; // Colisão não implementada ainda
+        const secondHalfX = otherPlayerX + (otherPlayerWidth / 2); // começo da segunda metade
+
+        return (
+            playerX < otherPlayerX + otherPlayerWidth &&    // ainda dentro do limite direito
+            playerX + playerWidth > secondHalfX &&          // entrou na segunda metade
+            playerY < otherPlayerY + otherPlayerHeight &&
+            playerY + playerHeight > otherPlayerY
+        );
+    }
+
+    // Verifica se o jogador colide com o outro jogador
+    isCollidingWithPlayer(player, deslocamento) {
         const { x: playerX, y: playerY, width: playerWidth, height: playerHeight } = player;
         const { x: otherPlayerX, y: otherPlayerY, width: otherPlayerWidth, height: otherPlayerHeight } = this.otherPlayer;
 
-        // Verifica se há sobreposição entre os jogadores
-        return !(playerX + playerWidth < otherPlayerX || 
-                 playerX > otherPlayerX + otherPlayerWidth || 
-                 playerY + playerHeight < otherPlayerY || 
-                 playerY > otherPlayerY + otherPlayerHeight);
+        return this.checkCollision(
+            playerX + deslocamento, playerY, playerWidth, playerHeight,
+            otherPlayerX, otherPlayerY, otherPlayerWidth, otherPlayerHeight
+        );
     }
 }

@@ -1,6 +1,5 @@
 import { MovementHandler } from '../Movement/MovementHandler.js';
 import { CollisionHandler } from '../Movement/CollisionHandler.js';
-
 export class Fighter {
     constructor(config) {
         this.x = config.x;
@@ -19,16 +18,49 @@ export class Fighter {
         this.animationState = 'idle';
         this.sprite_map = config.sprite_map;
         // Instâncias para controle de movimento e colisões
-        this.colissionHandler = new CollisionHandler(this);
+        // vou precisar colocar uma flag para saber se está em uma ação, seja correndo, atacando ou defendendo
+        this.isActioning = false; // Flag para saber se o lutador está em uma ação (movendo, atacando, defendendo)
+        this.colissionHandler = new CollisionHandler({xMin:0,xMax:config.map.width,yMin:0,yMax:config.map.height}, null); // null para o outro jogador, pois ainda não foi definido
         this.movement = new MovementHandler(this,config.speed,this.colissionHandler);
+        this.enemy = null; // Referência ao inimigo, se necessário
+    }
+
+    setEnemy(enemy) {
+        this.enemy = enemy;
+        this.colissionHandler.otherPlayer = enemy; // Atualiza o manipulador de colisões com o inimigo
     }
 
     // Métodos para movimentação
     moveLeft() {
+        this.animationState = 'walk_left';
         this.movement.moveLeft();
     }
 
+    attack1(){
+        this.animationState = 'attack1';
+
+
+        this.isAttacking = true;
+        
+        //this.movement.attack1();
+    }
+
+    attack2(){
+        this.animationState = 'attack2';
+        this.isAttacking = true;
+        
+        
+    }
+
+    attack3(){
+        this.animationState = 'attack3';
+        this.isAttacking = true;
+        
+        
+    }
+
     moveRight() {
+        this.animationState = 'walk';
         this.movement.moveRight();
     }
 
@@ -74,17 +106,13 @@ export class Fighter {
             return;
         }
     
-        console.log(`Renderizando estado "${this.animationState}" com imagem:`, spriteState.image);
-    
         // Calcular o quadro a ser exibido com base no número de frames e o frame atual
         let position = Math.floor(this.sprite_Frame / this.staggerFrame) % spriteState.frames;
-        console.log(`Posição do frame: ${position}`);
-        console.log(`Quantidade de frames: ${spriteState.frames}`);
         
         // Calcular a posição do quadro na sprite sheet
         let frameX = spriteState.frameWidth * position;
         let frameY = 0; // Se houver mais de uma linha de animação, altere isso conforme necessário
-    
+        
         // Renderizar a sprite no local correto (não depende de movimentação)
         context.drawImage(
             spriteState.image,
@@ -97,13 +125,20 @@ export class Fighter {
             this.width,
             this.height
         );
-    
+        
         // Desenha um quadrado ao redor do lutador para fins de depuração
-        context.strokeStyle = 'red'; // Cor do quadrado
-        context.lineWidth = 2; // Espessura da linha
-        context.strokeRect(this.x, this.y, this.width, this.height);
-    
+        //context.strokeStyle = 'red'; // Cor do quadrado
+        //context.lineWidth = 2; // Espessura da linha
+        //context.strokeRect(this.x, this.y, this.width, this.height);
+        
         // Incrementa o contador de frames da animação
+        if(this.isAttacking) {
+            if(position === this.sprite_map[this.animationState].frames - 1) {
+                this.isAttacking = false;
+                this.animationState = 'idle';
+                this.sprite_Frame = 0; // Reinicia o contador de frames após o ataque
+            }
+        }
         this.sprite_Frame++;
     }
     

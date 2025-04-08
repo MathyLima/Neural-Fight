@@ -10,95 +10,108 @@ function loadImage(src) {
 }
 
 const playerSpriteMap = {
-    idle: {image:loadImage('../Assets/Sprites/Player/Knight_1/Idle.png'),
-           frames:4,
-           frameWidth: 67,
-           frameHeight: 86,
+    idle: {image:loadImage('../Assets/Sprites/Fighter/Idle.png'),
+           frames:6,
+           frameWidth: 128,
+           frameHeight: 128,
     },
     attack1: {
-           image:loadImage('../Assets/Sprites/Player/Knight_1/Attack 1.png'),
-           frames: 5,
-           frameWidth: 86,
-           frameHeight: 86,
+           image:loadImage('../Assets/Sprites/Fighter/Attack_1.png'),
+           frames: 4,
+           frameWidth: 128,
+           frameHeight: 128,
         },
     attack2: {
-            image:loadImage('../Assets/Sprites/Player/Knight_1/Attack 2.png'),
-            frames: 4,
-            frameWidth: 107.5,
-            frameHeight: 86,
+            image:loadImage('../Assets/Sprites/Fighter/Attack_2.png'),
+            frames: 3,
+            frameWidth: 128,
+            frameHeight: 128,
         },
     attack3: {
-            image:loadImage('../Assets/Sprites/Player/Knight_1/Attack 3.png'),
+            image:loadImage('../Assets/Sprites/Fighter/Attack_3.png'),
             frames: 4,
-            frameWidth: 100,
-            frameHeight: 86,
+            frameWidth: 128,
+            frameHeight: 128,
         },
     defend:{
-            image:loadImage('../Assets/Sprites/Player/Knight_1/Defend.png'),
-            frames: 5,
-            frameWidth: 80,
-            frameHeight: 86,
+            image:loadImage('../Assets/Sprites/Fighter/Shield.png'),
+            frames: 2,
+            frameWidth: 128,
+            frameHeight: 128,
 
     },
     jump:{
-            image:loadImage('../Assets/Sprites/Player/Knight_1/Jump.png'),
+            image:loadImage('../Assets/Sprites/Fighter/Jump.png'),
             frames: 6,
-            frameWidth: 80,
-            frameHeight: 86,
+            frameWidth: 128,
+            frameHeight: 128,
     },
     walk:{
-            image:loadImage('../Assets/Sprites/Player/Knight_1/Run.png'),
+            image:loadImage('../Assets/Sprites/Fighter/Run.png'),
             frames: 7,
-            frameWidth: 70,
-            frameHeight: 86,
+            frameWidth: 128,
+            frameHeight: 128,
+    },
+    
+    walk_left:{
+        image:loadImage('../Assets/Sprites/Fighter/Run_left.png'),
+        frames: 7,
+        frameWidth: 128,
+        frameHeight: 128,
     },
    
 }
 
 
 const EnemySpriteMap = {
-    idle: {image:loadImage('../Assets/Sprites/Player/Knight_2/Idle.png'),
-           frames:4,
-           frameWidth: 67,
-           frameHeight: 86,
-    },
-    attack1: {
-            image:loadImage('../Assets/Sprites/Player/Knight_2/Attack 1.png'),
-           frames: 5,
-           frameWidth: 86,
-           frameHeight: 86,
-        },
-    attack2: {
-            image:loadImage('../Assets/Sprites/Player/Knight_2/Attack 2.png'),
-            frames: 4,
-            frameWidth: 107.5,
-            frameHeight: 86,
-        },
-    attack3: {
-            image:loadImage('../Assets/Sprites/Player/Knight_2/Attack 3.png'),
-            frames: 4,
-            frameWidth: 100,
-            frameHeight: 86,
-        },
-    defend:{
-            image:loadImage('../Assets/Sprites/Player/Knight_2/Defend.png'),
-            frames: 5,
-            frameWidth: 80,
-            frameHeight: 86,
+    idle: {image:loadImage('../Assets/Sprites/Samurai/Idle_left.png'),
+        frames:6,
+        frameWidth: 128,
+        frameHeight: 128,
+ },
+ attack1: {
+        image:loadImage('../Assets/Sprites/Samurai/Attack_1.png'),
+        frames: 6,
+        frameWidth: 128,
+        frameHeight: 128,
+     },
+ attack2: {
+         image:loadImage('../Assets/Sprites/Samurai/Attack_2.png'),
+         frames: 4,
+         frameWidth: 128,
+         frameHeight: 128,
+     },
+ attack3: {
+         image:loadImage('../Assets/Sprites/Samurai/Attack_3.png'),
+         frames: 3,
+         frameWidth: 1280,
+         frameHeight: 128,
+     },
+ defend:{
+         image:loadImage('../Assets/Sprites/Samurai/Shield.png'),
+         frames: 2,
+         frameWidth: 128,
+         frameHeight: 128,
 
-    },
-    jump:{
-            image:loadImage('../Assets/Sprites/Player/Knight_2/Jump.png'),
-            frames: 6,
-            frameWidth: 80,
-            frameHeight: 86,
-    },
-    walk:{
-            image:loadImage('../Assets/Sprites/Player/Knight_2/Walk.png'),
-            frames: 8,
-            frameWidth: 72.5,
-            frameHeight: 86,
-    },
+ },
+ jump:{
+         image:loadImage('../Assets/Sprites/Samurai/Jump.png'),
+         frames: 6,
+         frameWidth: 128,
+         frameHeight: 128,
+ },
+ walk:{
+         image:loadImage('../Assets/Sprites/Samurai/Run.png'),
+         frames: 8,
+         frameWidth: 128,
+         frameHeight: 128,
+ },
+ walk_left:{
+     image:loadImage('../Assets/Sprites/Samurai/Run_left.png'),
+     frames: 8,
+     frameWidth: 128,
+     frameHeight: 128,
+ },
    
 }
 
@@ -109,13 +122,13 @@ const EnemySpriteMap = {
 export const initialConfig = Object.freeze({
     fighters:{
         player1:{
-            x: document.getElementById('gameContainer').offsetWidth * 0.2,
-            y: document.getElementById('gameContainer').offsetHeight * 0.8,
+            x: document.getElementById('gameContainer').offsetWidth * 0.1,
+            y: document.getElementById('gameContainer').offsetHeight * 0.3,
             sprite_map: playerSpriteMap,
         },
         enemy1:{
-            x: document.getElementById('gameContainer').offsetWidth - 0.8,
-            y: document.getElementById('gameContainer').offsetHeight * 0.8,
+            x: document.getElementById('gameContainer').offsetWidth * 0.7,
+            y: document.getElementById('gameContainer').offsetHeight * 0.3,
             sprite_map: EnemySpriteMap,
         }
     },
@@ -124,7 +137,7 @@ export const initialConfig = Object.freeze({
         height: document.getElementById('gameContainer').offsetHeight,
         background: (() => {
             const img = new Image();
-            img.src = '../Assets/Tiles/City1/Bright/City1.png';
+            img.src = '../Assets/Tiles/spring/6.png';
             return img;
         })(),
     },
@@ -155,6 +168,10 @@ export const initialConfig = Object.freeze({
         player1Health: 100,
         player2Health: 100,
     },
+    server:{
+        host: 'localhost',
+        porta: 8080,
+    }
 })
 
 
