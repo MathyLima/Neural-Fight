@@ -19,7 +19,7 @@ export class Observer{
     notify(event, data) {
         if (this.subcribers[event]) {
             this.subcribers[event].forEach((callback) => {
-                callback(data);
+                callback(event,data);
             });
         }
     }

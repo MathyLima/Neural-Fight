@@ -12,26 +12,42 @@ loadAllImages().then(() => {
     const config_Player1 = {
         x: initialConfig.fighters.player1.x,
         y: initialConfig.fighters.player1.y,
-        width: 300,
+        width: 200,
         height: 350,
         sprite_map: initialConfig.fighters.player1.sprite_map,
         health: initialConfig.game_state.player1Health,
-        speed: 5,
+        speed: {x: 0, y: 0},    
         map: initialConfig.map,
-        staggerFrame: 30,
+        staggerFrame: 20,
         input: new Input(),
+        attackBox: {
+            x: initialConfig.fighters.player1.x,
+            y: initialConfig.fighters.player1.y,
+            width: 50,
+            height: 100,
+            offset: { x: 140, y: 150 },
+        },
     }
 
     const config_Player2 = {
         x: initialConfig.fighters.enemy1.x,
         y: initialConfig.fighters.enemy1.y,
-        width: 300,
+        width: 200,
         height: 350,
         sprite_map: initialConfig.fighters.enemy1.sprite_map,
         health: initialConfig.game_state.player1Health,
-        speed: 5,    
+        speed: {x: 0, y: 0},    
         map: initialConfig.map,
-        staggerFrame: 30,
+        staggerFrame: 20,
+
+        attackBox: {
+            x: initialConfig.fighters.enemy1.x,
+            y: initialConfig.fighters.enemy1.y,
+            width: 50,
+            height: 100,
+            offset: { x: 0, y: 200 },
+        },
+
     }
 
     const config_Server = {
@@ -81,6 +97,10 @@ loadAllImages().then(() => {
             });
         }
     });
+
+
+    let frameCounter = 0; // Contador de frames
+
     
     function animate() {
         if (!isGameStarted) {
@@ -89,12 +109,15 @@ loadAllImages().then(() => {
             context.clearRect(0, 0, canvas.width, canvas.height);
             renderer.draw(drawImage(map.background, 0, 0, map.width, map.height));
             renderer.draw((ctx) => {
-                player1.render(ctx);
+                player1.update(ctx);
             });
-    
+            
+
             renderer.draw((ctx) => {
-                player2.render(ctx);
-            });
+                player2.update(ctx);
+            })
+            frameCounter++; // Incrementa o contador de frames
+
         }
     
         requestAnimationFrame(animate);

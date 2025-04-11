@@ -14,30 +14,35 @@ const playerSpriteMap = {
            frames:6,
            frameWidth: 128,
            frameHeight: 128,
+           staggerFrame:200
     },
     attack1: {
            image:loadImage('../Assets/Sprites/Shinobi/Attack_1.png'),
            frames: 5,
            frameWidth: 128,
            frameHeight: 128,
+           staggerFrame:130
         },
     attack2: {
             image:loadImage('../Assets/Sprites/Shinobi/Attack_2.png'),
             frames: 3,
             frameWidth: 128,
             frameHeight: 128,
+            staggerFrame:170
         },
     attack3: {
             image:loadImage('../Assets/Sprites/Shinobi/Attack_3.png'),
             frames: 4,
             frameWidth: 128,
             frameHeight: 128,
+            staggerFrame:200
         },
     defend:{
             image:loadImage('../Assets/Sprites/Shinobi/Shield.png'),
             frames: 4,
             frameWidth: 128,
             frameHeight: 128,
+            staggerFrame:40
 
     },
     jump:{
@@ -45,12 +50,14 @@ const playerSpriteMap = {
             frames: 12,
             frameWidth: 128,
             frameHeight: 128,
+            staggerFrame:30
     },
     walk:{
             image:loadImage('../Assets/Sprites/Shinobi/Run.png'),
             frames: 8,
             frameWidth: 128,
             frameHeight: 128,
+            staggerFrame:100
     },
     
     walk_left:{
@@ -58,7 +65,17 @@ const playerSpriteMap = {
         frames: 8,
         frameWidth: 128,
         frameHeight: 128,
+        staggerFrame:100
+
     },
+    hurt:{
+        image:loadImage('../Assets/Sprites/Shinobi/Hurt.png'),
+        frames: 2,
+        frameWidth: 128,
+        frameHeight: 128,
+        staggerFrame:300
+
+    }
    
 }
 
@@ -68,12 +85,16 @@ const EnemySpriteMap = {
         frames:6,
         frameWidth: 128,
         frameHeight: 128,
+        staggerFrame:200
+
  },
  attack1: {
         image:loadImage('../Assets/Sprites/Samurai/Attack_1_left.png'),
         frames: 6,
         frameWidth: 128,
         frameHeight: 128,
+        staggerFrame:30
+
      },
  attack2: {
          image:loadImage('../Assets/Sprites/Samurai/Attack_2_left.png'),
@@ -112,6 +133,13 @@ const EnemySpriteMap = {
      frameWidth: 128,
      frameHeight: 128,
  },
+ hurt:{
+     image:loadImage('../Assets/Sprites/Samurai/Hurt_left.png'),
+     frames: 2,
+     frameWidth: 128,
+     frameHeight: 128,
+     staggerFrame:300
+ }
    
 }
 
@@ -131,6 +159,7 @@ export const initialConfig = Object.freeze({
             y: document.getElementById('gameContainer').offsetHeight * 0.3,
             sprite_map: EnemySpriteMap,
         }
+        
     },
     map: {
         width: document.getElementById('gameContainer').offsetWidth,
