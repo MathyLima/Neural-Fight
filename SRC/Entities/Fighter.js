@@ -30,6 +30,7 @@ export class Fighter {
             offset:config.attackBox.offset,
         };
 
+
         this.healthBar = new HealthBar({
             x: this.x,
             y: 10, // Posiciona a barra acima do lutador
@@ -267,6 +268,7 @@ export class Fighter {
 
 
     changeAnimationState(newState) {
+        console.log(newState)
         if( (this.isAttacking) // Se o lutador estiver atacando ou levando dano, não muda o estado de animação
             &&this.actualFrame < this.sprite_map[this.animationState].frames - 1) return; 
 

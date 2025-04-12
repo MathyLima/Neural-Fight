@@ -116,6 +116,8 @@ loadAllImages().then(() => {
             renderer.draw((ctx) => {
                 player2.update(ctx);
             })
+
+            player2.updateAI(); // Atualiza a IA do inimigo
             frameCounter++; // Incrementa o contador de frames
 
         }
