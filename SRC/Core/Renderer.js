@@ -23,4 +23,5 @@ export class Renderer{
     draw(callback){
         callback(this.context)
     };
+    
 }

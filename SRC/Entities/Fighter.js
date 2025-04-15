@@ -49,9 +49,18 @@ export class Fighter {
         this.ismovingLeft = false; // Flag para saber se o lutador está se movendo para a esquerda
         this.ismovingRight = false; // Flag para saber se o lutador está se movendo para a direita
         this.takingDamage = false; // Flag para saber se o lutador está levando dano
-
+        this.turno = config.turno;
+        this.isCentered = false;
+        this.inputing = false;
+        this.numberInputs;
+        this.pressedKeys = []; // Armazenará as teclas pressionadas permitidas
+        this.isAnimating = false;
     }
 
+
+    inputTime(){
+        return
+    }
     setEnemy(enemy) {
         this.enemy = enemy;
         this.colissionHandler.otherPlayer = enemy; // Atualiza o manipulador de colisões com o inimigo
@@ -107,7 +116,47 @@ export class Fighter {
         this.movement.jump();
     }
 
+    update(context){
+        this.render(context);
+        if(!this.isCentered){
+            this.movement.moveToCenter();
+        }
+        if(!this.colissionHandler.isCollidingWithMap(this, this.movement.getspeedX())){
+            this.x += this.speed.x; // Atualiza a posição do lutador com base na velocidade
+        }
+        else{
+            this.speed.x = 0; // Para o movimento se colidir com o mapa
+        }
+        if(this.inputing){
+            this.inputTime(this.numberInputs)
+        }
+       
+
+
+        if (this.isAttacking && this.actualFrame === this.sprite_map[this.animationState].frames - 1) {
+            this.isAttacking = false;
+            this.changeAnimationState('idle');
+            if (typeof this.onAnimationEnd === 'function') {
+                this.onAnimationEnd(); // Chama um callback se tiver
+                this.onAnimationEnd = null;
+            }
+        }
+        
+
+        this.sprite_Frame++;
+    }
+
+
     
+    animateUntilEnd(){
+        this.isAnimating = true;
+        if(this.actualFrame === this.sprite_map[this.animationState].frames - 1){
+            this.isAnimating = false;
+        }
+    }
+    
+
+    /*
     // Atualizar o estado do lutador
     update(context) {
         this.render(context);
@@ -175,6 +224,8 @@ export class Fighter {
 
     }
 
+    */
+
     calculateDamage(type) {
         // Define o dano com base no tipo de ataque
         const damageValues = {
@@ -182,6 +233,7 @@ export class Fighter {
             2: 20, // Dano do ataque 2
             3: 30, // Dano do ataque 3
         };
+        console.log(damageValues[type])
         return damageValues[type] || 0;
     }
 
@@ -246,7 +298,12 @@ export class Fighter {
         this.attackBox.x = this.x + this.attackBox.offset.x; // Atualiza a posição X da caixa de ataque com base na posição do lutador
         //agora vamos fazer a animacao da sprite
         //temos que calcular a posicao
+        let frameAnterior = this.actualFrame
         this.actualFrame = Math.floor(this.sprite_Frame/this.staggerFrame)%this.sprite_map[this.animationState].frames; // Posição X do corte do sprite
+        if(this.isBlocking && this.actualFrame === this.sprite_map[this.animationState].frames - 1){
+            
+            this.actualFrame = frameAnterior
+        }
         context.drawImage(
             this.sprite_map[this.animationState].image, 
             spriteWidth * this.actualFrame, // Posição X do corte do sprite
@@ -268,18 +325,18 @@ export class Fighter {
 
 
     changeAnimationState(newState) {
-        console.log(newState)
-        if( (this.isAttacking) // Se o lutador estiver atacando ou levando dano, não muda o estado de animação
-            &&this.actualFrame < this.sprite_map[this.animationState].frames - 1) return; 
-
-        if (this.takingDamage && this.animationState === 'hurt') {
-            if (this.actualFrame < this.sprite_map[this.animationState].frames - 1) return; // Se o lutador estiver levando dano, não muda o estado de animação
-           
+        const currentIsAttack = ['attack1', 'attack2', 'attack3'].includes(this.animationState);
+    
+        if (this.isAttacking && currentIsAttack && this.actualFrame < this.sprite_map[this.animationState].frames - 1) {
+            // Está no meio de uma animação de ataque, e quer trocar pra outro ataque → bloqueia
+            return ;
         }
-        if(this.animationState === newState) return; // Se o estado de animação for o mesmo, não faz nada
+    
+        if (this.animationState === newState) return; // já tá no estado desejado
+    
         this.animationState = newState;
-        this.sprite_Frame = 0; // Reinicia o contador de frames da animação
-        
+        this.sprite_Frame = 0;
+        return ;
     }
     
     

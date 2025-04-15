@@ -151,12 +151,12 @@ export const initialConfig = Object.freeze({
     fighters:{
         player1:{
             x: document.getElementById('gameContainer').offsetWidth * 0.1,
-            y: document.getElementById('gameContainer').offsetHeight * 0.3,
+            y: document.getElementById('gameContainer').offsetHeight * 0.1,
             sprite_map: playerSpriteMap,
         },
         enemy1:{
             x: document.getElementById('gameContainer').offsetWidth * 0.7,
-            y: document.getElementById('gameContainer').offsetHeight * 0.3,
+            y: document.getElementById('gameContainer').offsetHeight * 0.1,
             sprite_map: EnemySpriteMap,
         }
         
@@ -194,6 +194,7 @@ export const initialConfig = Object.freeze({
         player2Score: 0,
         gameOver: false,
         roundOver: false,
+        gameStarted: false,
         player1Health: 100,
         player2Health: 100,
     },

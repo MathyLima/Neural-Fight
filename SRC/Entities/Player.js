@@ -1,4 +1,5 @@
 import { Fighter } from "./Fighter.js";
+
 export class Player extends Fighter {
     constructor(name, config) {
         super(config);
@@ -6,104 +7,59 @@ export class Player extends Fighter {
         this.input = config.input;
         this.lastKey = null;
         this.isMoving = false; // Nova flag para controlar a movimentação
-
-
         this.keysPressed = {};
+        this.inputTimeout = 1000; // Tempo máximo para cada input (1 segundo)
+        this.lastInputTime = {}; // Armazena o último tempo de input para cada tecla
+        this.inputDelay = 500; // Delay entre as entradas (500ms)
+        this.lastInput = 0; // Marca o tempo do último input
+    };
 
+    // Método para armazenar as teclas pressionadas
+    storePressedKey(key) {
 
-       
+        this.pressedKeys.push(key); // Adiciona a tecla ao array de teclas pressionadas
+        console.log(this.pressedKeys,this.numberInputs)
+    }
 
-        this.input.onEvent(['a', 'd', 'w','j','k','l','i','o','p'], (key,isPressed) => {
-            
-            if(isPressed){
-                this.keysPressed[key] = true;
-                if(key === 'a' || key === 'd'){
-                    this.lastKey = key;
+    inputTime() {
+        let inputCount = 0;
+    
+        this.input.onEvent(['j', 'k', 'l', 'i', 'o', 'p'], (key, isPressed) => {
+            const currentTime = Date.now();
+    
+            // Protege contra múltiplos triggers rápidos
+            if (currentTime - this.lastInput < this.inputDelay) return;
+    
+            this.lastInput = currentTime;
+    
+            const isAtaque = this.turno === 'ataque';
+            const isDefesa = this.turno === 'defesa';
+    
+            if (isPressed) {
+    
+    
+                if (inputCount >= this.numberInputs) {
+                    this.inputing = false;
+                    inputCount = 0
+                    return;
                 }
+    
+                    this.lastInputTime[key] = currentTime;
+                    this.keysPressed[key] = true;
+    
+                    if (isAtaque && ['j', 'k', 'l'].includes(key) && !this.isAttacking) {
+                        if (this.isBlocking) this.stopBlock();
+                        this.storePressedKey(key);
+                        inputCount++;
+                    }
+    
+                    if (isDefesa && ['i', 'o', 'p'].includes(key) && !this.isBlocking) {
+                        this.storePressedKey(key);
+                        inputCount++;
+                    }
                 
-                // Horizontal
-                if (this.keysPressed['a'] && this.lastKey === 'a') {
-                    console.log('estou poressionando a')
-                    this.moveLeft();
-                } else if (this.keysPressed['d'] && this.lastKey === 'd') {
-                    this.moveRight();
-                } 
-            
-                // Vertical
-                if (this.keysPressed['w']) {
-                    this.moveUp();
-                    console.log(this.keysPressed)
-                } 
-
-                if( this.keysPressed['j'] && !this.isAttacking){
-                    if(this.isBlocking) this.stopBlock();
-                    this.attack1();
-                }
-
-                if( this.keysPressed['k'] && !this.isAttacking){
-                    if(this.isBlocking) this.stopBlock();
-                    this.attack2();
-                }
-                if( this.keysPressed['l'] && !this.isAttacking){
-                    if(this.isBlocking) this.stopBlock();
-                    this.attack3();
-                }
-
-                if( this.keysPressed['i'] && !this.isBlocking){
-                    this.block(1);
-                }
-                if( this.keysPressed['o'] && !this.isBlocking){
-                    this.block(2);
-                }
-                if( this.keysPressed['p'] && !this.isBlocking){
-                    this.block(3);
-                }
-
-            }else{
+            } else {
                 this.keysPressed[key] = false;
-                if (!this.keysPressed['a'] && !this.keysPressed['d']) {
-                    this.movement.stopHorizontal();
-                }
-                else if (!this.keysPressed['w']) {
-                    this.movement.stopVertical();
-                }
-
-            }
-        });
-
-       
-       
-
-        // Bloqueio 1
-        this.input.onEvent(['i'], (isPressed) => {
-            if (isPressed && !this.isActioning) {
-                this.isActioning = true;
-                this.block(1);
-            } else if (!isPressed) {
-                this.isActioning = false;
-                this.stopBlock();
-            }
-        });
-
-        // Bloqueio 2
-        this.input.onEvent(['o'], (isPressed) => {
-            if (isPressed && !this.isActioning) {
-                this.isActioning = true;
-                this.block(2);
-            } else if (!isPressed) {
-                this.isActioning = false;
-                this.stopBlock();
-            }
-        });
-
-        // Bloqueio 3
-        this.input.onEvent(['p'], (isPressed) => {
-            if (isPressed && !this.isActioning) {
-                this.isActioning = true;
-                this.block(3);
-            } else if (!isPressed) {
-                this.isActioning = false;
-                this.stopBlock();
             }
         });
     }

@@ -8,8 +8,8 @@ export class Enemy extends Fighter {
         super(config);
         this.name = name;
         this.input = new Input();
-        this.colissionHandler = new CollisionHandler(this);
-        this.movement = new MovementHandler(this,config.speed,this.colissionHandler);
+
+       
         
         this.lastAttackTime = 0;
         this.attackCooldown = 1000; // em milissegundos (1 segundo, por exemplo)
@@ -61,6 +61,11 @@ export class Enemy extends Fighter {
                 this.changeAnimationState('idle');
             }
         }
+    }
+
+
+    inputTime(){
+        this.pressedKeys = ['i','o','p']
     }
     
     

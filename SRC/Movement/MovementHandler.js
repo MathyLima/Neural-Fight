@@ -14,6 +14,7 @@ export class MovementHandler {
     }
     // Movimento para a esquerda
     moveLeft() {
+        
         this.speed.x = -Math.abs(this.speed.x); // Inverte a velocidade para mover para a esquerda
     
         this.entity.speed.x = this.speed.x; // Define a velocidade negativa para mover para a esquerda
@@ -51,5 +52,63 @@ export class MovementHandler {
     stopVertical() {
         this.entity.speed.y = 0; // Para o movimento vertical
     }
+
+
+    moveToCenter() {
+        const centerX = this.collisionHandler.mapBounds.xMax / 2;
+    
+        const entity = this.entity;
+    
+        // Calcula a posição central da attackBox com base na posição atual do entity
+        const attackBoxCenterX = entity.x + entity.attackBox.offset.x + (entity.attackBox.width / 2);
+    
+        const delta = centerX - attackBoxCenterX;
+    
+        if (Math.abs(delta) > Math.abs(this.entity.speed.x)) {
+            if (delta > 0) {
+                this.moveRight();
+                this.entity.moveRight()
+                entity.ismovingRight = true;
+                entity.ismovingLeft = false;
+            } else {
+                this.moveLeft();
+                this.entity.moveLeft();
+                entity.ismovingLeft = true;
+                entity.ismovingRight = false;
+            }
+        } else {
+            this.entity.isCentered = true
+            this.stopHorizontal(); // Centralizou, então para
+            const targetX = centerX - this.entity.attackBox.offset.x - (this.entity.attackBox.width / 2);
+            this.entity.x = targetX;
+            
+        }
+    }
+
+
+
+
+    moveToInitialPosition() {
+        const currentX = this.entity.x;
+        const targetX = this.entity.initialX;
+        const delta = targetX - currentX;
+    
+        if (Math.abs(delta) > Math.abs(this.entity.speed.x)) {
+            if (delta > 0) {
+                this.moveRight();
+                this.entity.ismovingRight = true;
+                this.entity.ismovingLeft = false;
+            } else {
+                this.moveLeft();
+                this.entity.ismovingLeft = true;
+                this.entity.ismovingRight = false;
+            }
+        } else {
+            this.stopHorizontal(); // Chegou na posição
+            this.entity.x = targetX; // Corrige qualquer pequeno erro de arredondamento
+            this.entity.isAtInitialPosition = true; // opcional: marca como centralizado
+        }
+    }
+    
     
 }
