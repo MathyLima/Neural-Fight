@@ -61,7 +61,7 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 
 ## 🔁 Revezamento de Turnos
 
-- Após os 3 comandos, os papéis se invertem:
+- Após os comandos, os papéis se invertem:
   - O atacante vira defensor
   - O defensor vira atacante
 - O processo de input e ataque/defesa se repete.
