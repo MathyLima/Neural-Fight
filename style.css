@@ -12,3 +12,55 @@ body{
     margin: 0;
     padding: 0;
 }
+
+
+#proximaRodadaBotao:hover{
+    cursor: pointer;
+}
+.divCobretela{
+    z-index: 1;
+    background-color: rgba(0,0,0,.5);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    color: white;
+}
+
+.inputContainer{
+    width: 90%;
+    height: 70%;
+    display: flex;
+    justify-content: center;
+    margin: 1rem;
+    align-items: center;
+}
+
+.inputContainer >*{
+    flex: 0 0 23%; /* 4 botões com espaço entre */
+    height: calc(100% - 20px); /* altura relativa ao container com padding */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputRect{
+    width: 60%;
+    height: 30%;
+    border-radius: 1rem;
+    border: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    font-weight: bolder;
+}
+
+#Input{
+    flex-direction: column;
+}

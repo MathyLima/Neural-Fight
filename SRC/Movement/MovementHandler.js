@@ -82,6 +82,10 @@ export class MovementHandler {
             this.stopHorizontal(); // Centralizou, então para
             const targetX = centerX - this.entity.attackBox.offset.x - (this.entity.attackBox.width / 2);
             this.entity.x = targetX;
+            const gameInstance = Game.getInstance();
+
+            gameInstance.determinaInputsMostrados();
+            gameInstance.abrirTelaInput();
             
         }
     }

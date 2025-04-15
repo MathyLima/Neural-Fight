@@ -132,18 +132,25 @@ export class Game {
             const allCentered = this.fighters.every(f => f.isCentered);
 
             if (allCentered) {
-                const numberInteractions = 3;
+                const numberInteractions = Math.floor(Math.random() * (4 - 2 + 1)) + 2;
                 if (!this.numberInputs) this.numberInputs = numberInteractions;
-            
+                this.determinaInputsMostrados()
                 this.fighters.forEach(fighter => {
                     if (!fighter.inputing) {
                         fighter.numberInputs = this.numberInputs;
                         fighter.inputing = true;
+                        
+                        
                     }
                 });
-            
+                
                 const allPlayersReady = this.fighters.every(f => f.pressedKeys.length >= this.numberInputs);
                 if ((allPlayersReady || this.attackType.length >= this.numberInputs || this.defenseType.length >= this.numberInputs) && !this.executandoRodada) {
+                   setTimeout(()=>{
+                       document.getElementById('Input').style.display='none'
+
+                   },200)
+
                     this.executandoRodada = true;
                 
                     this.fighters.forEach(fighter => {
@@ -262,6 +269,39 @@ export class Game {
                 fighter.onAnimationEnd = resolve;
             });
         }
+
+    abrirTelaInput(){
+        Array.from(document.querySelectorAll('.inputSpace')).forEach((input) => {
+            const rect = input.querySelector('.inputRect');
+            rect.style.backgroundColor = ''; // ou uma cor padrão tipo 'transparent'
+            const h1 = rect.querySelector('h1');
+            if (h1) h1.innerText = '';
+        });
+        document.getElementById('turnoDescription').innerText = `TURNO:${this.round}`
+        const teclasDisponiveisAtaque = 'J,K,L';
+        const teclasDisponiveisDefesa = 'I,O,P';
+        
+        let teclaDisponivel = this.fighters[0].turno === 'ataque'
+          ? teclasDisponiveisAtaque
+          : teclasDisponiveisDefesa;
+        document.getElementById('teclasDisponiveis').innerText = `TECLAS DISPONÍVEIS: ${teclaDisponivel}`
+
+        document.getElementById('Input').style.display = 'flex'
+    }
+
+    determinaInputsMostrados(){
+        const numeroInputs = this.numberInputs;
+        Array.from(document.querySelectorAll('.inputSpace')).forEach((input,index)=>{
+            if(index > numeroInputs-1){
+                input.style.display = 'none';
+            }
+            else{
+                input.style.display = 'flex';
+
+            }
+        })
+    }
+
     correctDefense() {
         return new Promise((resolve)=>{
             

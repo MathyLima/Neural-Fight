@@ -1,9 +1,9 @@
 import { Fighter } from "./Fighter.js";
 
 export class Player extends Fighter {
-    constructor(name, config) {
+    constructor(id, config) {
         super(config);
-        this.name = name;
+        this.id = id;
         this.input = config.input;
         this.lastKey = null;
         this.isMoving = false; // Nova flag para controlar a movimentação
@@ -18,6 +18,13 @@ export class Player extends Fighter {
     storePressedKey(key) {
 
         this.pressedKeys.push(key); // Adiciona a tecla ao array de teclas pressionadas
+        const actualKey = this.pressedKeys.length -1;
+        Array.from(document.querySelectorAll('.inputSpace')).forEach((input,index)=>{
+            if(index === actualKey){
+                input.querySelector('.inputRect').style.backgroundColor = 'white';
+                input.querySelector('.inputRect').querySelector('h1').innerText = key
+            }
+        })
     }
 
     inputTime() {
