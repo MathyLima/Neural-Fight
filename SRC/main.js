@@ -23,11 +23,11 @@ loadAllImages().then(() => {
         staggerFrame: 20,
         input: new Input(),
         attackBox: {
-            x: initialConfig.fighters.player1.x,
+            x: initialConfig.fighters.player1.x - 50,
             y: initialConfig.fighters.player1.y,
             width: 50,
             height: 100,
-            offset: { x: 240, y: 330 },
+            offset: { x: 200, y: 330 },
         },
     }
 
@@ -49,7 +49,7 @@ loadAllImages().then(() => {
         staggerFrame: 20,
 
         attackBox: {
-            x: initialConfig.fighters.enemy1.x,
+            x: initialConfig.fighters.enemy1.x - 50,
             y: initialConfig.fighters.enemy1.y,
             width: 50,
             height: 100,

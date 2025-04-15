@@ -94,8 +94,8 @@ export class Game {
                 
                     this.fighters.forEach(fighter => {
                         const keys = fighter.pressedKeys.slice(0, this.numberInputs);
-                
-                        if (this.attackType.length === 0 && this.defenseType.length === 0) {
+
+                        if (this.attackType.length === 0 || this.defenseType.length === 0) {
                             keys.forEach(key => {
                                 if (fighter.turno === 'ataque') {
                                     if (key === 'j') this.attackType.push(1);
@@ -110,7 +110,6 @@ export class Game {
                                 }
                             });
 
-                            console.log(this.attackType)
                         }
                     });
                 
@@ -139,13 +138,31 @@ export class Game {
                                 if (fighter.turno === 'defesa') {
                                     const defense = this.defenseType.shift();
                                     fighter.pressedKeys.shift();
-                    
-                                    // espera o inimigo atacar
-                                    if (fighter.enemy.isAttacking) {
+                                    console.log(result)
+                                    if(result[i]){
+                                        // espera o inimigo atacar
                                         fighter.block(defense);
-                                        await new Promise(r => setTimeout(r, 150)); // pequena pausa para o bloqueio
+                                        const sound = new Audio();
+                                        sound.src = '../../Assets/Audios/swordBlock.mp3';
+                                        sound.volume = 0.3;
+                                        sound.play().catch(error => {
+                                            console.error("Erro ao tentar reproduzir o áudio:", error);
+                                        });
+                                        await this.waitForAnimationEnd(fighter); // pequena pausa para o bloqueio
                                         fighter.stopBlock();
+                                    }else{
+                                        fighter.takeDamage();
+                                        const sound = new Audio();
+                                        sound.src = '../../Assets/Audios/swordHurt.mp3'
+                                        sound.volume = 0.3;
+                                        sound.play().catch(error => {
+                                            console.error("Erro ao tentar reproduzir o áudio:", error);
+                                        });
+                                        await this.waitForAnimationEnd(fighter);
+                                        fighter.stopTakeDamage();
+                                        
                                     }
+                                    
                                 }
                                 /*
                                 this.health -= amount;
@@ -164,12 +181,29 @@ export class Game {
                     
                         // Após os 3 inputs:
                         this.fighters.forEach(f => {
+                            if(f.turno === 'defesa'){
+                                const falseCount = result.filter(r => r === false).length;
+                                const percentCount = falseCount/result.length||1;
+                                const amount = 10 * percentCount;
+                                console.log(amount)
+                                f.health -= amount;
+                                f.healthBar.update(f.health); // Atualiza a barra de saúde do inimigo
+                                if (f.health <= 0) {
+                                    f.health = 0;
+                                    document.getElementById('finalizaJogo').style.display = 'flex';
+                                    f.die();
+                                }
+                            }
                             f.turno = f.turno === 'ataque' ? 'defesa' : 'ataque';
                             f.inputing = false;
                         });
                         this.numberInputs = null;
                         this.executandoRodada = false;
+
+                
                     });
+
+
                 }
             }
 
@@ -196,7 +230,8 @@ export class Game {
                 answers.push(defenseMap[attack] === this.defenseType[index])    
                 
             })
-    
+            
+            console.log(this.defenseType)
            
             resolve(answers)
 

@@ -124,16 +124,23 @@ export class Fighter {
     block(type) {
         this.isBlocking = true;
         this.blockType = type; // Define o tipo de defesa
-        this.animationState = `defend`;
+        this.changeAnimationState('defend');
     }
 
     stopBlock() {
         this.isBlocking = false;
         this.blockType = null; // Reseta o tipo de defesa
-        this.animationState = 'idle';
+        this.changeAnimationState('idle')
     }
 
-
+    takeDamage(){
+        this.takingDamage = true;
+        this.changeAnimationState('hurt');
+    }
+    stopTakeDamage(){
+        this.takingDamage = false;
+        this.changeAnimationState('idle')
+    }
 
     
     render(context) {
@@ -146,9 +153,13 @@ export class Fighter {
         //temos que calcular a posicao
         let frameAnterior = this.actualFrame
         this.actualFrame = Math.floor(this.sprite_Frame/this.staggerFrame)%this.sprite_map[this.animationState].frames; // Posição X do corte do sprite
-        if(this.isBlocking && this.actualFrame === this.sprite_map[this.animationState].frames - 1){
+        if((this.isBlocking  || this.takingDamage)&& this.actualFrame === this.sprite_map[this.animationState].frames - 1){
             
             this.actualFrame = frameAnterior
+            if (typeof this.onAnimationEnd === 'function') {
+                this.onAnimationEnd(); // Chama um callback se tiver
+                this.onAnimationEnd = null;
+            }
         }
         context.drawImage(
             this.sprite_map[this.animationState].image, 
