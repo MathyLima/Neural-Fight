@@ -238,8 +238,7 @@ export class Game {
                         this.fighters.forEach(f => {
                             if(f.turno === 'defesa'){
                                 const falseCount = result.filter(r => r === false).length;
-                                const percentCount = falseCount/result.length||1;
-                                const amount = 10 * percentCount;
+                                const percentCount = result.length > 0 ? falseCount / result.length : 0;                                const amount = 10 * percentCount;
                                 f.health -= amount;
                                 f.healthBar.update(f.health); // Atualiza a barra de saúde do inimigo
                                 if (f.health <= 0) {
