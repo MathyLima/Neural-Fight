@@ -147,6 +147,15 @@ export class Game {
                                         fighter.stopBlock();
                                     }
                                 }
+                                /*
+                                this.health -= amount;
+                                this.healthBar.update(this.health); // Atualiza a barra de saúde do inimigo
+                                if (this.health <= 0) {
+                                    this.health = 0;
+                                    document.getElementById('finalizaJogo').style.display = 'flex';
+                                    this.die();
+                                }
+                                    */
                             }
                     
                             // pequena pausa entre cada input (se quiser)

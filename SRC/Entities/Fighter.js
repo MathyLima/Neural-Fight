@@ -55,6 +55,7 @@ export class Fighter {
         this.numberInputs;
         this.pressedKeys = []; // Armazenará as teclas pressionadas permitidas
         this.isAnimating = false;
+        this.onAnimationEnd = null;
     }
 
 
@@ -79,41 +80,13 @@ export class Fighter {
         this.movement.moveUp();
     }
 
-    attack1(){
-        this.changeAnimationState('attack1');
-
-        this.isAttacking = true;
-        
-        //this.movement.attack1();
-    }
-
-    attack2(){
-        this.changeAnimationState('attack2');
-        this.isAttacking = true;
-        
-        
-    }
-
-    attack3(){
-        this.changeAnimationState('attack3');
-        this.isAttacking = true;
-        
-        
-    }
+  
 
     moveRight() {
         this.animationState = 'walk';
         this.ismovingRight = true; // Define a flag de movimento para a direita
         this.ismovingLeft = false; // Reseta a flag de movimento para a esquerda
         this.movement.moveRight();
-    }
-
-    stop() {
-        this.movement.stop();
-    }
-
-    jump() {
-        this.movement.jump();
     }
 
     update(context){
@@ -147,118 +120,6 @@ export class Fighter {
     }
 
 
-    
-    animateUntilEnd(){
-        this.isAnimating = true;
-        if(this.actualFrame === this.sprite_map[this.animationState].frames - 1){
-            this.isAnimating = false;
-        }
-    }
-    
-
-    /*
-    // Atualizar o estado do lutador
-    update(context) {
-        this.render(context);
-        
-
-       
-
-        if(!this.colissionHandler.isCollidingWithMap(this, this.movement.getspeedX())){
-            this.x += this.speed.x; // Atualiza a posição do lutador com base na velocidade
-        }
-        else{
-            this.speed.x = 0; // Para o movimento se colidir com o mapa
-        }
-        if(this.y + this.height + this.speed.y >= this.initialY + this.height){
-            
-
-            this.speed.y = 0; // Para o movimento se colidir com o mapa
-            
-        }
-        else{
-            this.speed.y += this.gravity;
-        }
-        this.y += this.speed.y; // Atualiza a posição do lutador com base na velocidade
-
-
-
-        if(this.actualFrame === this.sprite_map[this.animationState].frames - 1) {
-            if(this.isAttacking){
-                if(this.attackBox.x + this.attackBox.width >= this.enemy.x &&
-                    this.attackBox.x <= this.enemy.x + this.enemy.width &&
-                    this.y <= this.enemy.y + this.enemy.height &&
-                    this.y + this.height >= this.enemy.y
-                    && this.isAttacking
-                ){
-                    //aqui o ataque pegou no inimigo
-
-                    this.enemy.takeHit(this.calculateDamage(this.getAttackType()),this.getAttackType()); // Calcula o dano e aplica ao inimigo
-
-
-                }
-
-                    this.isAttacking = false; // Reseta o ataque após a colisão
-                    if(!this.ismovingLeft && !this.ismovingRight){
-                        this.changeAnimationState('idle'); // Muda o estado de animação para "idle"
-                    }
-                    else if(this.ismovingLeft){
-                        this.changeAnimationState('walk_left'); // Muda o estado de animação para "walk"
-                    }
-                    else if(this.ismovingRight){
-                        this.changeAnimationState('walk'); // Muda o estado de animação para "walk"
-                    }
-
-            }
-            if(this.takingDamage){
-                this.takingDamage = false; // Reseta a flag de dano após a animação
-                this.changeAnimationState('idle'); // Muda o estado de animação para "idle"
-
-            }
-
-        }
-
-
-
-        this.sprite_Frame++;
-
-    }
-
-    */
-
-    calculateDamage(type) {
-        // Define o dano com base no tipo de ataque
-        const damageValues = {
-            1: 10, // Dano do ataque 1
-            2: 20, // Dano do ataque 2
-            3: 30, // Dano do ataque 3
-        };
-        console.log(damageValues[type])
-        return damageValues[type] || 0;
-    }
-
-    takeHit(amount,attackType) {
-        console.log('tomei dano')
-        
-       if(this.isBlocking && this.correctDefense(attackType)) {
-        return
-       }
-       console.log('aqui')
-        this.takingDamage = true; // Marca que o lutador está levando dano
-        this.changeAnimationState('hurt'); 
-        
-        this.isActioning = true; // Marca que uma ação está em andamento
-        this.isAttacking = false; // Para o ataque se o lutador for atingido
-        this.health -= amount;
-        this.healthBar.update(this.health); // Atualiza a barra de saúde do inimigo
-        if (this.health <= 0) {
-            this.health = 0;
-            document.getElementById('finalizaJogo').style.display = 'flex';
-            this.die();
-        }
-    }
-
-
 
     block(type) {
         this.isBlocking = true;
@@ -272,23 +133,8 @@ export class Fighter {
         this.animationState = 'idle';
     }
 
-    getAttackType() {
-        if (this.animationState === 'attack1') return 1;
-        if (this.animationState === 'attack2') return 2;
-        if (this.animationState === 'attack3') return 3;
-        return 0; // Nenhum ataque
-    }
 
 
-    correctDefense(attackType) {
-        // Define quais tipos de defesa bloqueiam quais ataques
-        const defenseMap = {
-            1: 2, // Defesa 1 bloqueia ataque 1
-            2: 1, // Defesa 2 bloqueia ataque 2
-            3: 3, // Defesa 3 bloqueia ataque 3
-        };
-        return defenseMap[attackType] === this.blockType;
-    }
     
     render(context) {
         const initialSpriteCut = {x:0,y:0};

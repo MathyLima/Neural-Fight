@@ -7,16 +7,6 @@ export class ServerCommunicator{
         this.playerId = null;
         this.input = config.input;
 
-        this.input.onEvent(['a'], (isPressed) => {
-            this.enviarMensagem('a');
-            }
-        );
-        this.input.onEvent(['d'], (isPressed) =>{
-            this.enviarMensagem('d');
-              
-            }
-        );
-
         this.input.onEvent(['j'],(isPressed)=>{
             this.enviarMensagem('ataque1');
         })

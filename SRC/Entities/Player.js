@@ -18,7 +18,6 @@ export class Player extends Fighter {
     storePressedKey(key) {
 
         this.pressedKeys.push(key); // Adiciona a tecla ao array de teclas pressionadas
-        console.log(this.pressedKeys,this.numberInputs)
     }
 
     inputTime() {
