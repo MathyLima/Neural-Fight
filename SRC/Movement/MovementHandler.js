@@ -1,3 +1,4 @@
+import { Game } from "../Core/Game.js";
 export class MovementHandler {
     constructor(entity, collisionHandler) {
         this.entity = entity; // Referência ao jogador
@@ -92,7 +93,7 @@ export class MovementHandler {
         const currentX = this.entity.x;
         const targetX = this.entity.initialX;
         const delta = targetX - currentX;
-    
+        this.entity.movingToInitialPosition = true
         if (Math.abs(delta) > Math.abs(this.entity.speed.x)) {
             if (delta > 0) {
                 this.moveRight();
@@ -106,7 +107,18 @@ export class MovementHandler {
         } else {
             this.stopHorizontal(); // Chegou na posição
             this.entity.x = targetX; // Corrige qualquer pequeno erro de arredondamento
-            this.entity.isAtInitialPosition = true; // opcional: marca como centralizado
+            this.entity.movingToInitialPosition = false;
+            const proximaRodadaTela = document.getElementById('proximaRodada')
+            proximaRodadaTela.style.display = 'flex';
+
+            proximaRodadaTela.querySelector('#proximaRodadaBotao').onclick = ()=>{
+                proximaRodadaTela.style.display = 'none';
+                this.entity.isCentered = false;
+                this.entity.enemy.isCentered = false;
+                const gameInstance = Game.getInstance();
+                gameInstance.addRound();
+            }
+
         }
     }
     

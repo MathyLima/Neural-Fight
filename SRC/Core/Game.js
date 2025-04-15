@@ -1,4 +1,5 @@
 export class Game {
+    static #instance = null;
     constructor(config){
         this.round = config.round; // Número da rodada
         this.fighters = config.fighters; // Lista de lutadores
@@ -15,9 +16,19 @@ export class Game {
 
         this.attackType = [];
         this.defenseType = [];
-      
+      if(!Game.#instance){
+        Game.#instance = this;
+      }
     }
 
+
+    static getInstance(){
+        return Game.#instance;
+    }
+
+    addRound(){
+        this.round += 1;
+    }
      //vamos fazer o jogo funcionar por turnos de ataque e defesa
      //no inicio do jogo vamos fazer os jogadores irem para o centro
      startGame(){
@@ -66,7 +77,50 @@ export class Game {
         }else{
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.renderer.draw(this.drawImage(this.map.background, 0, 0, this.map.width, this.map.height));
+            const text = `${this.round}`;
+            this.context.font = 'bold 40px Arial';
+            this.context.textAlign = 'center';
+            this.context.textBaseline = 'top';
             
+            const x = this.canvas.width / 2;
+            const y = 20;
+            
+            const metrics = this.context.measureText(text);
+            const padding = 20;
+            const rectWidth = metrics.width + padding * 2;
+            const rectHeight = 40;
+            const radius = 10; // aqui define o quanto arredondado
+            
+            // Função para desenhar retângulo com bordas arredondadas
+            function roundRect(ctx, x, y, width, height, radius) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Desenha o fundo arredondado
+            this.context.fillStyle = 'black';
+            roundRect(
+                this.context,
+                x - rectWidth / 2,
+                y,
+                rectWidth,
+                rectHeight,
+                radius
+            );
+            
+            // Desenha o texto por cima
+            this.context.fillStyle = 'white';
+            this.context.fillText(text, x, y + (rectHeight - 36) / 2);
             this.fighters.forEach(fighter=>{
                 this.renderer.draw((ctx)=>{
                     fighter.update(ctx);
@@ -164,15 +218,7 @@ export class Game {
                                     }
                                     
                                 }
-                                /*
-                                this.health -= amount;
-                                this.healthBar.update(this.health); // Atualiza a barra de saúde do inimigo
-                                if (this.health <= 0) {
-                                    this.health = 0;
-                                    document.getElementById('finalizaJogo').style.display = 'flex';
-                                    this.die();
-                                }
-                                    */
+                                
                             }
                     
                             // pequena pausa entre cada input (se quiser)
@@ -185,7 +231,6 @@ export class Game {
                                 const falseCount = result.filter(r => r === false).length;
                                 const percentCount = falseCount/result.length||1;
                                 const amount = 10 * percentCount;
-                                console.log(amount)
                                 f.health -= amount;
                                 f.healthBar.update(f.health); // Atualiza a barra de saúde do inimigo
                                 if (f.health <= 0) {
@@ -196,6 +241,7 @@ export class Game {
                             }
                             f.turno = f.turno === 'ataque' ? 'defesa' : 'ataque';
                             f.inputing = false;
+                            f.movement.moveToInitialPosition(); 
                         });
                         this.numberInputs = null;
                         this.executandoRodada = false;

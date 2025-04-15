@@ -10,8 +10,12 @@
 <body>
 
     <div id="finalizaJogo" style="z-index: 1;background-color: rgba(0,0,0,.5);backdrop-filter: blur(4px);display: none;justify-content: center;align-items: center;position: absolute;width: 100vw;height: 100vh;color: white;"><h1 id="finalizaTexto">JOGO FINALIZADO</h1></div>
-    
-    
+    <div id="proximaRodada" style="z-index: 1;background-color: rgba(0,0,0,.5);backdrop-filter: blur(4px);display: none;justify-content: center;align-items: center;position: absolute;width: 100vw;height: 100vh;color: white;"><h1 id="proximaRodadaBotao" style="color:black;padding: 1rem;user-select: none;display: flex;justify-content: center;align-items: center;border-radius: 1rem;border: 1px solid;background-color: white;border-radius: 1rem;">Próxima Rodada</h1></div>
+    <style>
+        #proximaRodadaBotao:hover{
+            cursor: pointer;
+        }
+    </style>
     <canvas id="gameContainer"></canvas>
 
 

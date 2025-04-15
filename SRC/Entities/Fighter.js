@@ -56,6 +56,7 @@ export class Fighter {
         this.pressedKeys = []; // Armazenará as teclas pressionadas permitidas
         this.isAnimating = false;
         this.onAnimationEnd = null;
+        this.movingToInitialPosition = false;
     }
 
 
@@ -91,17 +92,22 @@ export class Fighter {
 
     update(context){
         this.render(context);
-        if(!this.isCentered){
-            this.movement.moveToCenter();
+        if(this.movingToInitialPosition){
+            this.movement.moveToInitialPosition()
+        }else{
+            
+            if(!this.isCentered){
+                this.movement.moveToCenter();
+            }
+            if(this.inputing){
+                this.inputTime(this.numberInputs)
+            }
         }
         if(!this.colissionHandler.isCollidingWithMap(this, this.movement.getspeedX())){
             this.x += this.speed.x; // Atualiza a posição do lutador com base na velocidade
         }
         else{
             this.speed.x = 0; // Para o movimento se colidir com o mapa
-        }
-        if(this.inputing){
-            this.inputTime(this.numberInputs)
         }
        
 
