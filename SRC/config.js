@@ -75,7 +75,14 @@ const playerSpriteMap = {
         frameHeight: 128,
         staggerFrame:300
 
-    }
+    },
+    die:{
+        image:loadImage('../Assets/Sprites/Shinobi/Dead.png'),
+         frames:4,
+         frameWidth: 128,
+         frameHeight: 128,
+         staggerFrame:300
+     }
    
 }
 
@@ -136,6 +143,13 @@ const EnemySpriteMap = {
  hurt:{
      image:loadImage('../Assets/Sprites/Samurai/Hurt_left.png'),
      frames: 2,
+     frameWidth: 128,
+     frameHeight: 128,
+     staggerFrame:300
+ },
+ die:{
+    image:loadImage('../Assets/Sprites/Samurai/Dead.png'),
+     frames:3,
      frameWidth: 128,
      frameHeight: 128,
      staggerFrame:300

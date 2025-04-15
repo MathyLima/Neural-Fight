@@ -8,9 +8,9 @@ export class Player extends Fighter {
         this.lastKey = null;
         this.isMoving = false; // Nova flag para controlar a movimentação
         this.keysPressed = {};
-        this.inputTimeout = 1000; // Tempo máximo para cada input (1 segundo)
+        this.inputTimeout = 500; // Tempo máximo para cada input (1 segundo)
         this.lastInputTime = {}; // Armazena o último tempo de input para cada tecla
-        this.inputDelay = 500; // Delay entre as entradas (500ms)
+        this.inputDelay = 200; // Delay entre as entradas (500ms)
         this.lastInput = 0; // Marca o tempo do último input
     };
 
@@ -43,7 +43,7 @@ export class Player extends Fighter {
     
             if (isPressed) {
     
-    
+                console.log(key)
                 if (inputCount >= this.numberInputs) {
                     this.inputing = false;
                     inputCount = 0

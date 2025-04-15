@@ -19,7 +19,6 @@ export class MovementHandler {
         this.speed.x = -Math.abs(this.speed.x); // Inverte a velocidade para mover para a esquerda
     
         this.entity.speed.x = this.speed.x; // Define a velocidade negativa para mover para a esquerda
-        console.log(this.entity.speed.x); // Para depuração
     }
 
     // Movimento para a direita
@@ -112,14 +111,18 @@ export class MovementHandler {
             this.stopHorizontal(); // Chegou na posição
             this.entity.x = targetX; // Corrige qualquer pequeno erro de arredondamento
             this.entity.movingToInitialPosition = false;
+            const gameInstance = Game.getInstance();
+
             const proximaRodadaTela = document.getElementById('proximaRodada')
-            proximaRodadaTela.style.display = 'flex';
+            if(!gameInstance.gameEnded){
+                proximaRodadaTela.style.display = 'flex';
+
+            }
 
             proximaRodadaTela.querySelector('#proximaRodadaBotao').onclick = ()=>{
                 proximaRodadaTela.style.display = 'none';
                 this.entity.isCentered = false;
                 this.entity.enemy.isCentered = false;
-                const gameInstance = Game.getInstance();
                 gameInstance.addRound();
             }
 

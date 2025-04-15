@@ -167,6 +167,8 @@ export class Fighter {
                 this.onAnimationEnd = null;
             }
         }
+
+        
         context.drawImage(
             this.sprite_map[this.animationState].image, 
             spriteWidth * this.actualFrame, // Posição X do corte do sprite
@@ -188,6 +190,7 @@ export class Fighter {
 
 
     changeAnimationState(newState) {
+        if(this.animationState === 'die') return;
         const currentIsAttack = ['attack1', 'attack2', 'attack3'].includes(this.animationState);
     
         if (this.isAttacking && currentIsAttack && this.actualFrame < this.sprite_map[this.animationState].frames - 1) {
@@ -206,8 +209,6 @@ export class Fighter {
 
     // Morrer
     die() {
-        if (this.constructor === Fighter) {
-            throw new Error('Método "die" deve ser implementado nas subclasses!');
-        }
+        //this.changeAnimationState('die')
     }
 }

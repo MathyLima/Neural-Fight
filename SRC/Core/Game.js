@@ -13,6 +13,8 @@ export class Game {
         this.animate = this.animate.bind(this);
         this.numberInputs;
 
+        this.gameEnded = false;
+
 
         this.attackType = [];
         this.defenseType = [];
@@ -244,6 +246,7 @@ export class Game {
                                     f.health = 0;
                                     document.getElementById('finalizaJogo').style.display = 'flex';
                                     f.die();
+                                    this.gameEnded = true;
                                 }
                             }
                             f.turno = f.turno === 'ataque' ? 'defesa' : 'ataque';
