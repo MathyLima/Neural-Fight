@@ -3,7 +3,7 @@
 
 # 🥋 Jogo de Luta por Turnos (JavaScript)
 
-Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de sprites animados e entrada por teclado. O jogo permite dois lutadores se enfrentarem alternando entre ataques e defesas com base em comandos do jogador.
+Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de sprites animados e entrada por teclado. O jogo permite dois lutadores se enfrentarem alternando entre ataques e defesas com base em comandos do jogador. O jogo é feito para 1 jogador, o lutador adversário é operado por uma LSTM.
 
 ---
 
@@ -12,7 +12,7 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 ### Tela Inicial
 - O jogo inicia com uma tela de fundo e a mensagem:  
   **"Clique no jogo para iniciar"**
-- Ao clicar, a música de fundo começa a tocar em loop.
+- Ao clicar, a música de fundo começa a tocar em loop e o jogo é iniciado.
 
 ---
 
@@ -27,7 +27,7 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 - O jogo funciona com base em turnos alternados:
   - Um jogador é **atacante**
   - O outro é **defensor**
-- Cada jogador insere **3 inputs sequenciais** por turno.
+- Cada jogador insere **uma quantidade determinada de inputs sequenciais** por turno, essa quantidade pode variar entre 2 a 4.
 
 ### Comandos de Ataque
 | Tecla | Tipo de Ataque |
@@ -47,14 +47,16 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 
 ## ⚔️ Execução da Rodada
 
-1. Ambos os jogadores inserem seus 3 comandos.
-2. O sistema compara os ataques e defesas:
+1. O jogador insere seus respectivos comandos.
+2. A IA tenta prever quais são esses comandos e fazer uma contra jogada.
+3. O sistema compara os ataques e defesas:
    - Defesa correta bloqueia o ataque correspondente.
-3. Para cada input:
+   - O dano máximo por rodada é 10%, esse valor é diminuido com o tanto de defesas realizadas com sucesso.
+4. Para cada input:
    - O atacante realiza uma animação (`attack1`, `attack2`, `attack3`).
    - O defensor tenta bloquear se a defesa coincidir.
-4. Cada ação é executada sequencialmente com **espera da animação finalizar**.
-
+5. Cada ação é executada sequencialmente com **espera da animação finalizar**.
+6. Jogadores voltam para a posição inicial e aguarda o início da próxima jogada.
 ---
 
 ## 🔁 Revezamento de Turnos
@@ -83,13 +85,6 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 
 ---
 
-## ⏸️ Pausar e Retomar
-
-- O jogo pode ser pausado com `stopAnimation()`
-- Pode ser retomado com `resumeAnimation()`
-
----
-
 ## ✅ Estados Internos
 
 - `gameStarted`: controla se o jogo já começou
@@ -101,10 +96,10 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 ---
 
 ## 📦 Estrutura Básica
-
+- O jogo carrega suas configurações através do arquivo config.js, lá são descritas as configurações iniciais e de sprites.
 ```js
 game = new Game({
-  round: 1,
+  round: 0,
   fighters: [player1, player2],
   game_state: { gameStarted: false },
   renderer,
