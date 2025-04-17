@@ -29,6 +29,7 @@ loadAllImages().then(() => {
             height: 100,
             offset: { x: 200, y: 330 },
         },
+        inputMap: JSON.parse(JSON.stringify(initialConfig.inputMap))
     }
 
     const config_Player2 = {
@@ -55,6 +56,7 @@ loadAllImages().then(() => {
             height: 100,
             offset: { x: 0, y: 330 },
         },
+        inputMap: JSON.parse(JSON.stringify(initialConfig.inputMap))
 
     }
 

@@ -12,12 +12,15 @@ export class Game {
         this.animationFrameId = null;
         this.animate = this.animate.bind(this);
         this.numberInputs;
+        this.inputMap = config.inputMap
 
         this.gameEnded = false;
-
+        this.availableKeys = [];
 
         this.attackType = [];
         this.defenseType = [];
+
+        this.turnAttacks = [];
       if(!Game.#instance){
         Game.#instance = this;
       }
@@ -28,8 +31,24 @@ export class Game {
         return Game.#instance;
     }
 
-    addRound(){
+    decreaseCooldowns() {
+        this.fighters.forEach(fighter => {
+            if(fighter.turno === 'ataque'){
+
+                // Diminuir o cooldown dos ataques e garantir que não fique abaixo de 0
+                Object.keys(fighter.attacks).forEach(key => {
+                    const attack = fighter.attacks[key];
+                    attack.currentCooldown = Math.max(attack.currentCooldown - 1, 0);
+                    
+                });
+            }
+        });
+    }
+
+    addRound() {
         this.round += 1;
+       
+        this.decreaseCooldowns(); // Reduz o cooldown de cada fighter
     }
      //vamos fazer o jogo funcionar por turnos de ataque e defesa
      //no inicio do jogo vamos fazer os jogadores irem para o centro
@@ -141,6 +160,7 @@ export class Game {
                     if (!fighter.inputing) {
                         fighter.numberInputs = this.numberInputs;
                         fighter.inputing = true;
+                        fighter.inputSession = false
                         
                         
                     }
@@ -153,6 +173,12 @@ export class Game {
 
                    },200)
 
+                 
+                   if (this.fighters[0]._cancelClickListener) {
+                    document.removeEventListener("click", this.fighters[0]._cancelClickListener);
+                    this.fighters[0]._cancelClickListener;
+            }
+
                     this.executandoRodada = true;
                 
                     this.fighters.forEach(fighter => {
@@ -161,15 +187,11 @@ export class Game {
                         if (this.attackType.length === 0 || this.defenseType.length === 0) {
                             keys.forEach(key => {
                                 if (fighter.turno === 'ataque') {
-                                    if (key === 'j') this.attackType.push(1);
-                                    else if (key === 'k') this.attackType.push(2);
-                                    else if (key === 'l') this.attackType.push(3);
+                                    this.attackType.push(key);
                                 }
                 
                                 if (fighter.turno === 'defesa') {
-                                    if (key === 'i') this.defenseType.push(1);
-                                    else if (key === 'o') this.defenseType.push(2);
-                                    else if (key === 'p') this.defenseType.push(3);
+                                    this.defenseType.push(key);
                                 }
                             });
 
@@ -180,15 +202,23 @@ export class Game {
                         for (let i = 0; i < this.numberInputs; i++) {
                             for (const fighter of this.fighters) {
                                 if (fighter.turno === 'ataque') {
-                                    
+                                    const attackType1 = ['a','q','e'];
+                                    const attackType2 = ['t','s','e','w'];
+                                    const attackType3 = ['r'];
                                     const attack = this.attackType[0]
-                                    let attackType = 'attack1';
-                                    if (attack === 2) attackType = 'attack2';
-                                    else if (attack === 3) attackType = 'attack3';
+                                    let attackType;
+                                    if (attackType1.includes(attack)) {
+                                        attackType = 'attack1';
+                                    } else if (attackType2.includes(attack)) {
+                                        attackType = 'attack2';
+                                    } else if (attackType3.includes(attack)) {
+                                        attackType = 'attack3';
+                                    } else {
+                                        attackType = 'unknown';
+                                    }
                     
                                     fighter.isAttacking = true;
                                     fighter.changeAnimationState(attackType);
-                                    console.log(fighter.animationState,attackType);
                                     
                                     await this.waitForAnimationEnd(fighter);
                                     this.attackType.shift();
@@ -201,7 +231,6 @@ export class Game {
                                 if (fighter.turno === 'defesa') {
                                     const defense = this.defenseType.shift();
                                     fighter.pressedKeys.shift();
-                                    console.log(result)
                                     if(result[i]){
                                         // espera o inimigo atacar
                                         fighter.block(defense);
@@ -214,6 +243,42 @@ export class Game {
                                         await this.waitForAnimationEnd(fighter); // pequena pausa para o bloqueio
                                         fighter.stopBlock();
                                     }else{
+                                        let danoBase;
+                                        const primeiroAtaque = this.turnAttacks.shift(); // pega e remove o primeiro ataque
+
+                                        switch (primeiroAtaque) {
+                                            case 'q':
+                                                danoBase = 2;
+                                                fighter.envenenar();
+                                                break;
+                                            case 'w':
+                                                danoBase = 3;
+                                                fighter.enfraquecer();
+                                                break;
+                                            case 'e':
+                                                danoBase = 1;
+                                                fighter.enemy.curar();
+                                                break;
+                                            case 'r':
+                                                danoBase = 0.5;
+                                                fighter.enemy.curarEfeitos();
+                                                break;
+                                            case 't':
+                                                danoBase = 5;
+                                                fighter.sangramento();
+                                                break;
+                                            case 'a':
+                                                danoBase = 7;
+                                                break;
+                                            case 's':
+                                                danoBase = 10;
+                                                break;
+                                        }
+                                            
+                                        
+
+
+
                                         fighter.takeDamage();
                                         const sound = new Audio();
                                         sound.src = '../../Assets/Audios/swordHurt.mp3'
@@ -222,7 +287,7 @@ export class Game {
                                             console.error("Erro ao tentar reproduzir o áudio:", error);
                                         });
                                         await this.waitForAnimationEnd(fighter);
-                                        fighter.stopTakeDamage();
+                                        fighter.stopTakeDamage(danoBase);
                                         
                                     }
                                     
@@ -233,10 +298,11 @@ export class Game {
                             // pequena pausa entre cada input (se quiser)
                             await new Promise(r => setTimeout(r, 200));
                         }
-                    
+                        /*
                         // Após os 3 inputs:
                         this.fighters.forEach(f => {
                             if(f.turno === 'defesa'){
+                                f.takeDamage();
                                 const falseCount = result.filter(r => r === false).length;
                                 const percentCount = result.length > 0 ? falseCount / result.length : 0;                                const amount = 10 * percentCount;
                                 f.health -= amount;
@@ -248,13 +314,23 @@ export class Game {
                                     this.gameEnded = true;
                                 }
                             }
+
+                            
+                        });*/
+                        this.fighters.forEach(f => {
+                            if(f.turno === 'ataque') {
+                                f.enfraquecerDuration = f.decrementMinZero(f.enfraquecerDuration ) 
+                                if(f.enfraquecerDuration === 0) f.damageReduction = 0
+                            }
                             f.turno = f.turno === 'ataque' ? 'defesa' : 'ataque';
                             f.inputing = false;
                             f.movement.moveToInitialPosition(); 
-                        });
+                            f.keysPressed = {}
+                        })
                         this.numberInputs = null;
-                        this.executandoRodada = false;
 
+                        this.executandoRodada = false;
+                        this.turnAttacks = [];
                 
                     });
 
@@ -272,24 +348,50 @@ export class Game {
             });
         }
 
-    abrirTelaInput(){
-        Array.from(document.querySelectorAll('.inputSpace')).forEach((input) => {
-            const rect = input.querySelector('.inputRect');
-            rect.style.backgroundColor = ''; // ou uma cor padrão tipo 'transparent'
-            const h1 = rect.querySelector('h1');
-            if (h1) h1.innerText = '';
-        });
-        document.getElementById('turnoDescription').innerText = `TURNO:${this.round}`
-        const teclasDisponiveisAtaque = 'J,K,L';
-        const teclasDisponiveisDefesa = 'I,O,P';
+        abrirTelaInput(){
+            this.fighters.forEach(fighter=>{
+                fighter.keysPressed = {};
+                fighter.pressedKeys = [];
+            })
+            Array.from(document.querySelectorAll('.inputSpace')).forEach((input) => {
+                const rect = input.querySelector('.inputRect');
+                rect.style.backgroundColor = ''; // ou uma cor padrão tipo 'transparent'
+                const h1 = rect.querySelector('h1');
+                if (h1) h1.innerText = '';
+            });
+            
+            document.getElementById('turnoDescription').innerText = `TURNO:${this.round}`
+            
         
-        let teclaDisponivel = this.fighters[0].turno === 'ataque'
-          ? teclasDisponiveisAtaque
-          : teclasDisponiveisDefesa;
-        document.getElementById('teclasDisponiveis').innerText = `TECLAS DISPONÍVEIS: ${teclaDisponivel}`
+            // Para ataque, somente mostrar teclas que não estão em cooldown
+            this.availableKeys = this.getAvailableAttackKeys();
+        
+            document.getElementById('teclasDisponiveis').innerText = `TECLAS DISPONÍVEIS: ${this.availableKeys}`
+        
+            document.getElementById('Input').style.display = 'flex';
 
-        document.getElementById('Input').style.display = 'flex'
-    }
+            //inicia o input listener de cada jogador
+            this.fighters.forEach(fighter=>{
+                fighter.inputTime();
+            })
+        }
+        
+        getAvailableAttackKeys() {
+            // Retorna as teclas de ataque que não estão em cooldown para o jogador que está atacando
+            const availableKeys = [];
+            const attackingFighter = this.fighters.find(fighter => fighter.turno === 'ataque'); // Encontrar o lutador que está atacando
+            if (attackingFighter) {
+                // Percorrer todas as teclas no inputMap
+                Object.keys(attackingFighter.attacks).forEach(key => {
+                    const attack = attackingFighter.attacks[key];
+                    if (attack.currentCooldown === 0) { // Se o cooldown for 0, o ataque pode ser feito
+                        availableKeys.push(key); // Adiciona a tecla correspondente ao ataque à lista de teclas disponíveis
+                    }
+                });
+            }
+            this.fighters.forEach(f => f.setRoundKeys(availableKeys));
+            return availableKeys.join(','); // Retorna as teclas disponíveis separadas por vírgula
+        }
 
     determinaInputsMostrados(){
         const numeroInputs = this.numberInputs;
@@ -309,17 +411,13 @@ export class Game {
             
             const answers = []
             // Define quais tipos de defesa bloqueiam quais ataques
-            const defenseMap = {
-                1: 1, // Defesa 1 bloqueia ataque 1
-                2: 2, // Defesa 2 bloqueia ataque 2
-                3: 3, // Defesa 3 bloqueia ataque 3
-            };
+            
             this.attackType.forEach((attack,index)=>{
-                answers.push(defenseMap[attack] === this.defenseType[index])    
+                this.turnAttacks.push(attack);
+                answers.push(attack === this.defenseType[index])    
                 
             })
             
-            console.log(this.defenseType)
            
             resolve(answers)
 
@@ -339,7 +437,6 @@ export class Game {
     resumeAnimation() {
         if (!this.animationFrameId) {
             this.animationFrameId = requestAnimationFrame(this.animate);
-            console.log('Animação retomada');
         }
     }
 

@@ -215,7 +215,49 @@ export const initialConfig = Object.freeze({
     server:{
         host: 'localhost',
         porta: 8080,
-    }
+    },
+    inputMap : {
+        "q": {
+          name: "Envenenar",
+          cooldown: 3,
+          currentCooldown: 0,
+          duration: 3,
+        },
+        "w": {
+          name: "Enfraquecer",
+          cooldown: 2,
+          currentCooldown: 0,
+          duration: 2,
+        },
+        "e": {
+          name: "Cura",
+          cooldown: 4,
+          currentCooldown: 0,
+        },
+        "t": {
+          name: "Sangramento",
+          cooldown: 3,
+          currentCooldown: 0,
+          duration: 4,
+        },
+        "r": {
+          name: "Cura de efeitos",
+          cooldown: 5,
+          currentCooldown: 0,
+          duration: 3,
+          
+        },
+        "a": {
+          name: "Ataque Básico",
+          cooldown: 0,
+          currentCooldown: 0,
+        },
+        "s": {
+          name: "Ataque Pesado",
+          cooldown: 1,
+          currentCooldown: 0,
+        }
+      }
 })
 
 

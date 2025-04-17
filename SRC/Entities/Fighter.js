@@ -1,6 +1,7 @@
 import { MovementHandler } from '../Movement/MovementHandler.js';
 import { CollisionHandler } from '../Movement/CollisionHandler.js';
 import { HealthBar } from '../UI/HealthBar.js';
+import { Game } from '../Core/Game.js';
 export class Fighter {
     constructor(config) {
         this.x = config.x;
@@ -21,6 +22,15 @@ export class Fighter {
         this.animationState = 'idle';
         this.sprite_map = config.sprite_map;
         this.actualFrame = 0;
+        this.damageReduction = 0;
+        this.roundKeys;
+
+        this.poisonDuration = 0;
+        this.enfraquecerDuration = 0;
+        this.sangramentoDuration = 0;
+        
+        this.currentEffect = [];
+
 
         this.attackBox = {
             x:config.attackBox.x,
@@ -57,6 +67,8 @@ export class Fighter {
         this.isAnimating = false;
         this.onAnimationEnd = null;
         this.movingToInitialPosition = false;
+        this.attacks = config.inputMap;
+        this.inputSession = false;
     }
 
 
@@ -66,6 +78,11 @@ export class Fighter {
     setEnemy(enemy) {
         this.enemy = enemy;
         this.colissionHandler.otherPlayer = enemy; // Atualiza o manipulador de colisões com o inimigo
+    }
+    setRoundKeys(keysMap){
+        console.log(keysMap)
+        this.roundKeys =keysMap
+        
     }
 
     // Métodos para movimentação
@@ -99,9 +116,7 @@ export class Fighter {
             if(!this.isCentered){
                 this.movement.moveToCenter();
             }
-            if(this.inputing){
-                this.inputTime(this.numberInputs)
-            }
+           
         }
         if(!this.colissionHandler.isCollidingWithMap(this, this.movement.getspeedX())){
             this.x += this.speed.x; // Atualiza a posição do lutador com base na velocidade
@@ -126,6 +141,46 @@ export class Fighter {
     }
 
 
+    envenenar(){
+        this.currentEffect.push('veneno');
+        this.poisonDuration = 4;
+    }
+
+
+    enfraquecer(){
+        if(this.damageReduction< 50){
+            this.damageReduction+=10;
+        }
+        this.enfraquecerDuration = 3;
+        if(!this.currentEffect.includes('enfraquecer')){
+            this.currentEffect.push('enfraquecer');
+        }
+    }
+
+
+    sangramento(){
+            this.currentEffect.push('sangramento');
+            
+            this.sangramentoDuration = 3;
+    }
+
+    curarEfeitos(){
+        this.currentEffect = [];
+        this.damageReduction = 0;
+        this.sangramentoDuration = 0;
+        this.poisonDuration = 0;
+    }
+
+
+    curar(){
+        if(this.health+10 >= 100){
+            this.health = 100;
+            return
+        }
+
+        this.health+=10;
+    }
+
 
     block(type) {
         this.isBlocking = true;
@@ -140,12 +195,97 @@ export class Fighter {
     }
 
     takeDamage(){
+        
         this.takingDamage = true;
         this.changeAnimationState('hurt');
+        
+        
     }
-    stopTakeDamage(){
-        this.takingDamage = false;
-        this.changeAnimationState('idle')
+    
+        stopTakeDamage(danoBase) {
+            this.takingDamage = false;
+        
+            let modificadorEnfraquecido = this.enemy.damageReduction;
+        
+            let danoFinal = danoBase;
+        
+            if (modificadorEnfraquecido > 0) {
+                danoFinal = danoBase * ((100 - modificadorEnfraquecido) / 100);
+            }
+        
+           
+        
+        
+            this.atualizarVida(danoFinal)
+            this.changeAnimationState('idle')
+    }
+
+
+    atualizarVida(danoFinal){
+        this.health -= danoFinal;
+    
+        this.healthBar.update(this.health); // Atualiza a barra de saúde do inimigo
+    
+
+        if (this.health <= 0) {
+            this.health = 0;
+            document.getElementById('finalizaJogo').style.display = 'flex';
+            this.die();
+            const gameInstance = Game.getInstance();
+            gameInstance.gameEnded = true;
+        }
+        
+    }
+
+    contarEfeito(lista, efeito) {
+        return lista.filter(e => e === efeito).length;
+    }
+    
+    decrementMinZero(value) {
+        return Math.max(0, value - 1);
+    }
+
+    takeDamageFinal() {
+        let dano = 0;
+    
+        const qtdVeneno = this.contarEfeito(this.currentEffect, 'veneno');
+        const qtdSangramento = this.contarEfeito(this.currentEffect, 'sangramento');
+        if (this.poisonDuration > 0) {
+            const danoVeneno = 2 * qtdVeneno;
+            dano += danoVeneno;
+        }
+    
+        if (this.sangramentoDuration > 0) {
+            const danoSangramento = 3 * qtdSangramento;
+            dano += danoSangramento;
+        }
+    
+        this.sangramentoDuration = this.decrementMinZero(this.sangramentoDuration);
+        this.poisonDuration = this.decrementMinZero(this.poisonDuration);
+
+        if (this.poisonDuration === 0) {
+            this.removerEfeito('veneno');
+        }
+        
+        if (this.sangramentoDuration === 0) {
+            this.removerEfeito('sangramento');
+        }
+    
+        this.atualizarVida(dano);
+    }
+
+
+    removerEfeito(tipo) {
+        const index = this.currentEffect.indexOf(tipo);
+        if (index !== -1) {
+            this.currentEffect.splice(index, 1);
+        }
+    }
+
+    comecarCooldownTecla(tecla){
+        this.attacks[tecla].currentCooldown = this.attacks[tecla].cooldown; 
+
+        console.log(this.attacks[tecla])
     }
 
     

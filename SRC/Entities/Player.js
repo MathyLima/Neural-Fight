@@ -14,59 +14,98 @@ export class Player extends Fighter {
         this.lastInput = 0; // Marca o tempo do último input
     };
 
-    // Método para armazenar as teclas pressionadas
-    storePressedKey(key) {
-
-        this.pressedKeys.push(key); // Adiciona a tecla ao array de teclas pressionadas
-        const actualKey = this.pressedKeys.length -1;
-        Array.from(document.querySelectorAll('.inputSpace')).forEach((input,index)=>{
-            if(index === actualKey){
-                input.querySelector('.inputRect').style.backgroundColor = 'white';
-                input.querySelector('.inputRect').querySelector('h1').innerText = key
-            }
-        })
-    }
-
-    inputTime() {
-        let inputCount = 0;
+    storePressedKey(key,inputList) {
+        // Impede duplicatas, exceto se a tecla for 'a'
+        if (this.pressedKeys.includes(key) && key !== 'a') return;
+        console.log(inputList)
+        this.pressedKeys.push(key);
+        console.log(this.pressedKeys)
+        const actualKey = this.pressedKeys.length - 1;
     
-        this.input.onEvent(['j', 'k', 'l', 'i', 'o', 'p'], (key, isPressed) => {
+        this.comecarCooldownTecla(key);
+
+
+        let availableKeys = inputList;
+       // Remove todas as teclas de 'pressedKeys' da 'availableKeys', exceto 'a', e também a tecla que chegou
+       availableKeys = availableKeys.filter(k => {
+            if (k === 'a') return true; // nunca remove 'a'
+            if (k === key) return false; // remove a key se não for 'a'
+            return !this.pressedKeys.includes(k); // remove outras teclas que já foram pressionadas
+        });
+
+        document.getElementById('teclasDisponiveis').innerText = `TECLAS DISPONÍVEIS: ${availableKeys.join(', ')}`;
+    
+        Array.from(document.querySelectorAll('.inputSpace')).forEach((input, index) => {
+            if (index === actualKey) {
+                input.querySelector('.inputRect').style.backgroundColor = 'white';
+                input.querySelector('.inputRect').querySelector('h1').innerText = key;
+            }
+        });
+    }
+    
+    inputTime() {
+        const inputList = this.roundKeys;
+        //if(!this.inputing || !this.isCentered)return;
+        this.inputSession = true
+        // Remove listeners anteriores
+        if (this._inputCallback && this._inputKeys) {
+            this.input.removeEvent(this._inputKeys, this._inputCallback);
+        }
+    
+        const pressedKeysSet = new Set(); // Armazena teclas já pressionadas
+    
+        const callback = (key, isPressed) => {
             const currentTime = Date.now();
     
-            // Protege contra múltiplos triggers rápidos
             if (currentTime - this.lastInput < this.inputDelay) return;
-    
             this.lastInput = currentTime;
     
-            const isAtaque = this.turno === 'ataque';
-            const isDefesa = this.turno === 'defesa';
-    
             if (isPressed) {
+                // Evita pressionar a mesma tecla duas vezes
+                if (pressedKeysSet.has(key) && key !== 'a') return;
     
-                console.log(key)
-                if (inputCount >= this.numberInputs) {
-                    this.inputing = false;
-                    inputCount = 0
-                    return;
+                // Armazena o tempo e marca a tecla como pressionada
+                this.lastInputTime[key] = currentTime;
+                this.keysPressed[key] = true;
+    
+                // Tenta armazenar a tecla (pode ser rejeitada internamente)
+                const beforeCount = this.pressedKeys.length;
+                this.storePressedKey(key, inputList);
+                const afterCount = this.pressedKeys.length;
+    
+                // Se a tecla foi realmente adicionada, siga com o fluxo
+                if (afterCount > beforeCount) {
+                    pressedKeysSet.add(key);
+    
+                    
+                    console.log(key)
+                    // Se atingiu o número máximo de inputs, remove todos os listeners
+                    if (afterCount >= this.numberInputs) {
+                        inputList.forEach(k => {
+                            this.input.removeEvent(k, callback);
+                        });
+
+                        this.inputing = false;
+                        
+                        return;
+                    }
                 }
-    
-                    this.lastInputTime[key] = currentTime;
-                    this.keysPressed[key] = true;
-    
-                    if (isAtaque && ['j', 'k', 'l'].includes(key) && !this.isAttacking) {
-                        if (this.isBlocking) this.stopBlock();
-                        this.storePressedKey(key);
-                        inputCount++;
-                    }
-    
-                    if (isDefesa && ['i', 'o', 'p'].includes(key) && !this.isBlocking) {
-                        this.storePressedKey(key);
-                        inputCount++;
-                    }
-                
             } else {
                 this.keysPressed[key] = false;
             }
-        });
+        };
+    
+        // Armazena callback e keys atuais para possível limpeza posterior
+        this._inputCallback = callback;
+        this._inputKeys = inputList;
+    
+        this.input.onEvent(inputList, callback);
+    
+        // Listener extra de segurança que remove tudo em caso de clique externo
+        this._cancelClickListener = () => {
+            this.input.removeEvent(inputList, callback);
+            document.removeEventListener("click", this._cancelClickListener);
+        };
+        document.addEventListener("click", this._cancelClickListener);
     }
 }

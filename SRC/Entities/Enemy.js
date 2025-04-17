@@ -18,7 +18,13 @@ export class Enemy extends Fighter {
 
 
     inputTime(){
-        this.pressedKeys = ['i','o','p','o'];
+
+        const inputList = this.roundKeys
+        this.inputSession = true
+        this.pressedKeys = inputList;
+        this.pressedKeys = ['a','a','a','a'];
+        this.inputSession = false
+        
     }
     
     

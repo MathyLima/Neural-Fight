@@ -112,7 +112,8 @@ export class MovementHandler {
             this.entity.x = targetX; // Corrige qualquer pequeno erro de arredondamento
             this.entity.movingToInitialPosition = false;
             const gameInstance = Game.getInstance();
-
+            this.entity.takeDamageFinal();
+            
             const proximaRodadaTela = document.getElementById('proximaRodada')
             if(!gameInstance.gameEnded){
                 proximaRodadaTela.style.display = 'flex';
