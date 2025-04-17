@@ -7,15 +7,7 @@ export class ServerCommunicator{
         this.playerId = null;
         this.input = config.input;
 
-        this.input.onEvent(['j'],(isPressed)=>{
-            this.enviarMensagem('ataque1');
-        })
-        this.input.onEvent(['k'],(isPressed)=>{
-            this.enviarMensagem('ataque2');
-        })
-        this.input.onEvent(['l'],(isPressed)=>{
-            this.enviarMensagem('ataque3');
-        })
+       
 
         try{
             this.connect();
@@ -33,6 +25,7 @@ export class ServerCommunicator{
         });
         
         this.socket.addEventListener('message', (event) => {
+            console.log('Recebido:', event.data);
             const data = JSON.parse(event.data);
             if(data.type === 'playerId'){
                 this.playerId = data.playerId;
@@ -58,6 +51,7 @@ export class ServerCommunicator{
 
 
     enviarEstadoDoJogo(estadoDoJogo) {
+        console.log(estadoDoJogo)
         if (this.isConnected) {
             const mensagem = {
                 type: 'gameState',

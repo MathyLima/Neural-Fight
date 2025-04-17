@@ -207,21 +207,21 @@ export class Game {
                     Object.entries(this.fighters[1].attacks).forEach(([key, attack]) => {
                         cooldownsPlayer2[key] = attack.currentCooldown;
                     });
-                    console.log(this.fighters[0].id)
-
+                    const teclasPressionadas = this.attackType;
+                    console.log('Teclas antes do envio:', teclasPressionadas);
                     const dadosJogo = this.gerarEstadoDoJogo({
-                        turnoJogador1:this.fighters[0].turno,
-                        numeroInputs:this.numberInputs,
-                        id:this.fighters[0].id,
-                        vidaJogador1:this.fighters[0].health,
-                        vidaJogador2:this.fighters[1].health,
-                        turnoAtual:this.round,
-                        teclasPressionadasJogador1:this.attackType,
-                        cooldownJogador1: cooldownsPlayer1,
-                        cooldownJogador2: cooldownsPlayer2,
-                        efeitosJogador1:this.fighters[0].getStatusEffects(),
-                        efeitosJogador2:this.fighters[1].getStatusEffects()  
-                    })
+                        turnoJogador1: this.fighters[0].turno,
+                        numeroInputs: this.numberInputs,
+                        id: this.fighters[0].id,
+                        vidaJogador1: this.fighters[0].health,
+                        vidaJogador2: this.fighters[1].health,
+                        turnoAtual: this.round,
+                        teclasPressionadasJogador1: Array.isArray(teclasPressionadas) ? [...teclasPressionadas] : teclasPressionadas,
+                        cooldownJogador1: JSON.parse(JSON.stringify(cooldownsPlayer1)),
+                        cooldownJogador2: JSON.parse(JSON.stringify(cooldownsPlayer2)),
+                        efeitosJogador1: JSON.parse(JSON.stringify(this.fighters[0].getStatusEffects())),
+                        efeitosJogador2: JSON.parse(JSON.stringify(this.fighters[1].getStatusEffects()))
+                    });
                 
                     this.correctDefense().then(async result => {
                         for (let i = 0; i < this.numberInputs; i++) {
@@ -448,22 +448,22 @@ export class Game {
             turnoJogador1: turnoJogador1,
             id: id,
             numeroInputs:this.numberInputs,
-          vida: {
-            jogador1: vidaJogador1,
-            jogador2: vidaJogador2
-          },
-          teclasPressionadasJogador1: teclasPressionadasJogador1,
-          turnoAtual: turnoAtual,
-          cooldown: {
-            jogador1: cooldownJogador1,
-            jogador2: cooldownJogador2
-          },
-          efeitos: {
-            jogador1: this.formatarEfeitos(efeitosJogador1,this.fighters[0]),
-            jogador2: this.formatarEfeitos(efeitosJogador2,this.fighters[1])
-          },
+            vida: {
+                jogador1: vidaJogador1,
+                jogador2: vidaJogador2
+            },
+            teclasPressionadasJogador1: teclasPressionadasJogador1,
+            turnoAtual: turnoAtual,
+            cooldown: {
+                jogador1: cooldownJogador1,
+                jogador2: cooldownJogador2
+            },
+            efeitos: {
+                jogador1: this.formatarEfeitos(efeitosJogador1,this.fighters[0]),
+                jogador2: this.formatarEfeitos(efeitosJogador2,this.fighters[1])
+            },
         };
-      
+        console.log(estado.teclasPressionadasJogador1)
         return estado;
       }
 
