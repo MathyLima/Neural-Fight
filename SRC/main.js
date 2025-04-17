@@ -71,7 +71,7 @@ loadAllImages().then(() => {
     player1.setEnemy(player2);
     player2.setEnemy(player1);
     
-    const server = new ServerCommunicator(config_Server);
+    //const server = new ServerCommunicator(config_Server);
 
     const config_game={
         fighters:[player1,player2],
