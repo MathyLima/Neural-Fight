@@ -19,7 +19,7 @@ export class Game {
 
         this.attackType = [];
         this.defenseType = [];
-
+        this.server = config.server;
         this.turnAttacks = [];
       if(!Game.#instance){
         Game.#instance = this;
@@ -197,6 +197,31 @@ export class Game {
 
                         }
                     });
+
+                    const cooldownsPlayer1 = {};
+                    Object.entries(this.fighters[0].attacks).forEach(([key, attack]) => {
+                        cooldownsPlayer1[key] = attack.currentCooldown;
+                    });
+                    
+                    const cooldownsPlayer2 = {};
+                    Object.entries(this.fighters[1].attacks).forEach(([key, attack]) => {
+                        cooldownsPlayer2[key] = attack.currentCooldown;
+                    });
+                    console.log(this.fighters[0].id)
+
+                    const dadosJogo = this.gerarEstadoDoJogo({
+                        turnoJogador1:this.fighters[0].turno,
+                        numeroInputs:this.numberInputs,
+                        id:this.fighters[0].id,
+                        vidaJogador1:this.fighters[0].health,
+                        vidaJogador2:this.fighters[1].health,
+                        turnoAtual:this.round,
+                        teclasPressionadasJogador1:this.attackType,
+                        cooldownJogador1: cooldownsPlayer1,
+                        cooldownJogador2: cooldownsPlayer2,
+                        efeitosJogador1:this.fighters[0].getStatusEffects(),
+                        efeitosJogador2:this.fighters[1].getStatusEffects()  
+                    })
                 
                     this.correctDefense().then(async result => {
                         for (let i = 0; i < this.numberInputs; i++) {
@@ -330,8 +355,7 @@ export class Game {
                         this.numberInputs = null;
 
                         this.executandoRodada = false;
-                        this.turnAttacks = [];
-                
+                        this.server.enviarEstadoDoJogo(dadosJogo)
                     });
 
 
@@ -406,6 +430,76 @@ export class Game {
         })
     }
 
+
+
+    gerarEstadoDoJogo({
+        turnoJogador1,
+        id,
+        vidaJogador1,
+        vidaJogador2,
+        teclasPressionadasJogador1,
+        turnoAtual,
+        cooldownJogador1,
+        cooldownJogador2,
+        efeitosJogador1,
+        efeitosJogador2
+      }) {
+        const estado = {
+            turnoJogador1: turnoJogador1,
+            id: id,
+            numeroInputs:this.numberInputs,
+          vida: {
+            jogador1: vidaJogador1,
+            jogador2: vidaJogador2
+          },
+          teclasPressionadasJogador1: teclasPressionadasJogador1,
+          turnoAtual: turnoAtual,
+          cooldown: {
+            jogador1: cooldownJogador1,
+            jogador2: cooldownJogador2
+          },
+          efeitos: {
+            jogador1: this.formatarEfeitos(efeitosJogador1,this.fighters[0]),
+            jogador2: this.formatarEfeitos(efeitosJogador2,this.fighters[1])
+          },
+        };
+      
+        return estado;
+      }
+
+
+    contarEfeito(lista, efeito) {
+        console.log(lista)
+        return lista.filter(e => e === efeito).length;
+    }
+
+      formatarEfeitos(efeitosJogador1,jogador) {
+        const efeitos = ['veneno', 'sangramento', 'enfraquecer'];
+        const resultado = [];
+      
+        for (let tipo of efeitos) {
+          const quantidade = this.contarEfeito(efeitosJogador1, tipo);
+          let duracao = 0;
+      
+          switch (tipo) {
+            case 'veneno':
+              duracao = jogador.poisonDuration;
+              break;
+            case 'sangramento':
+              duracao = jogador.sangramentoDuration;
+              break;
+            case 'enfraquecer':
+              duracao = jogador.enfraquecerDuration;
+              break;
+          }
+      
+          if (quantidade > 0) {
+            resultado.push({ tipo, quantidade, duracao });
+          }
+        }
+      
+        return resultado;
+      }
     correctDefense() {
         return new Promise((resolve)=>{
             

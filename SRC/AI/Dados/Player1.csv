@@ -1,0 +1,2 @@
+turnoJogador1,id,numeroInputs,vida_jogador1,vida_jogador2,primeiraTeclaJogador1,segundaTeclaJogador1,terceiraTeclaJogador1,quartaTeclaJogador1,turnoAtual,cooldown_jogador1_q,cooldown_jogador1_w,cooldown_jogador1_e,cooldown_jogador1_t,cooldown_jogador1_r,cooldown_jogador1_a,cooldown_jogador1_s,cooldown_jogador2_q,cooldown_jogador2_w,cooldown_jogador2_e,cooldown_jogador2_t,cooldown_jogador2_r,cooldown_jogador2_a,cooldown_jogador2_s,type
+ataque,Player1,2,100,100,,,,,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,gameState

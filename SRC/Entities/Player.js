@@ -3,6 +3,7 @@ import { Fighter } from "./Fighter.js";
 export class Player extends Fighter {
     constructor(id, config) {
         super(config);
+        console.log(id)
         this.id = id;
         this.input = config.input;
         this.lastKey = null;

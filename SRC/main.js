@@ -66,6 +66,8 @@ loadAllImages().then(() => {
         input: config_Player1.input,
     }
 
+    const server = new ServerCommunicator(config_Server);
+
     const map = initialConfig.map;
     const player1 = new Player('Player1', config_Player1);
 
@@ -73,7 +75,6 @@ loadAllImages().then(() => {
     player1.setEnemy(player2);
     player2.setEnemy(player1);
     
-    //const server = new ServerCommunicator(config_Server);
 
     const config_game={
         fighters:[player1,player2],
@@ -83,6 +84,7 @@ loadAllImages().then(() => {
         canvas:canvas,
         context:context,
         map:map,
+        server:server
     }
 
     const game = new Game(config_game);

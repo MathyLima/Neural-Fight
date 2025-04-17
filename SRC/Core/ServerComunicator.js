@@ -55,4 +55,18 @@ export class ServerCommunicator{
             console.log('Não conectado ao servidor!');
         }
     }
+
+
+    enviarEstadoDoJogo(estadoDoJogo) {
+        if (this.isConnected) {
+            const mensagem = {
+                type: 'gameState',
+                id: estadoDoJogo.id,
+                state: estadoDoJogo
+            };
+            this.socket.send(JSON.stringify(mensagem));
+        } else {
+            console.log('Não conectado ao servidor!');
+        }
+    }
 }

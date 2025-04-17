@@ -93,6 +93,38 @@ export class Fighter {
         this.movement.moveLeft();
     }
 
+    getStatusEffects() {
+        const efeitos = ['veneno', 'sangramento', 'enfraquecer'];
+        const resumo = [];
+    
+        for (let efeito of efeitos) {
+            const quantidade = this.contarEfeito(this.currentEffect, efeito);
+            let duracao = 0;
+    
+            switch (efeito) {
+                case 'veneno':
+                    duracao = this.poisonDuration;
+                    break;
+                case 'sangramento':
+                    duracao = this.sangramentoDuration;
+                    break;
+                case 'enfraquecer':
+                    duracao = this.enfraquecerDuration;
+                    break;
+            }
+    
+            if (quantidade > 0) {
+                resumo.push({
+                    tipo: efeito,
+                    quantidade,
+                    duracao
+                });
+            }
+        }
+    
+        return resumo;
+    }
+
     moveUp(){
         this.changeAnimationState('jump');
         this.movement.moveUp();
