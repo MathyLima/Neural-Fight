@@ -1,44 +1,99 @@
+import pandas as pd
 import numpy as np
+from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.layers import LSTM, Dense, Embedding
+import os
 
-# Array de entrada
-dados = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1]
-tamanho_sequencia = 2  # Usar 2 valores anteriores para prever o próximo
-epochs = 50
+# Função para carregar dados do CSV
+def carregar_dados_csv(csv_path):
+    if os.path.exists(csv_path):
+        return pd.read_csv(csv_path)
+    return None
 
-# Mapear valores para índices (0, 1, 2) e obter número de classes
-valores_unicos = sorted(set(dados))
-num_classes = len(valores_unicos)
-valor_para_indice = {v: i for i, v in enumerate(valores_unicos)}  # Ex.: {1: 0, 2: 1, 3: 2}
-indice_para_valor = {i: v for v, i in valor_para_indice.items()}  # Ex.: {0: 1, 1: 2, 2: 3}
+# Função para extrair sequências de teclas
+def extrair_sequencias_teclas(df):
+    sequencias = []
+    for _, row in df.iterrows():
+        teclas = [
+            row['primeiraTeclaJogador1'],
+            row['segundaTeclaJogador1'],
+            row['terceiraTeclaJogador1'],
+            row['quartaTeclaJogador1']
+        ]
+        teclas = [t for t in teclas if pd.notna(t) and t != '']
+        if teclas:
+            sequencias.append(teclas)
+    return sequencias
 
-# Converter dados para índices
-dados_codificados = [valor_para_indice[v] for v in dados]
+# Função para preparar dados para a LSTM
+def preparar_dados_lstm(sequencias, janela=3):
+    teclas_possiveis = ['q', 'w', 'e', 't', 'r', 'a', 's']
+    label_encoder = LabelEncoder()
+    label_encoder.fit(teclas_possiveis)
+    sequencias_codificadas = [[label_encoder.transform([t])[0] for t in seq] for seq in sequencias]
+    X, y = [], []
+    for i in range(len(sequencias_codificadas) - janela):
+        entrada = [seq[0] for seq in sequencias_codificadas[i:i + janela]]
+        saida = sequencias_codificadas[i + janela][0]
+        X.append(entrada)
+        y.append(saida)
+    X = np.array(X, dtype=np.float32).reshape(-1, janela, 1)
+    y = np.array(y, dtype=np.int32)
+    return X, y, label_encoder
 
-# Preparar dados
-X = []
-y = []
-for i in range(len(dados_codificados) - tamanho_sequencia):
-    X.append(dados_codificados[i:i + tamanho_sequencia])
-    y.append(dados_codificados[i + tamanho_sequencia])
+# Função para criar e treinar o modelo
+def criar_e_treinar_modelo(X, y, num_classes, janela=3, epochs=50):
+    model = Sequential([
+        Embedding(input_dim=num_classes, output_dim=10, input_length=janela),
+        LSTM(50, return_sequences=False),
+        Dense(num_classes, activation='softmax')
+    ])
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    print("Sou a LSTM! Iniciando o treinamento do modelo...")
+    model.fit(X, y, epochs=epochs, batch_size=32, verbose=1)
+    print("Treinamento concluído!")
+    return model
 
-X = np.array(X, dtype=np.float32).reshape(-1, tamanho_sequencia, 1)  # Formato: (amostras, timesteps, features)
-y = np.array(y, dtype=np.int32)  # Índices para sparse_categorical_crossentropy
+# Função para prever a próxima tecla
+def prever_proxima_tecla(model, ultimos_turnos, label_encoder, janela=3):
+    print(f"Sou a LSTM! Analisando a sequência: {ultimos_turnos}")
+    turnos_codificados = [label_encoder.transform([t[0]])[0] for t in ultimos_turnos]
+    turnos_codificados = np.array(turnos_codificados, dtype=np.float32).reshape(1, janela, 1)
+    predicao = model.predict(turnos_codificados)
+    tecla_idx = np.argmax(predicao, axis=1)[0]
+    tecla = label_encoder.inverse_transform([tecla_idx])[0]
+    print(f"Com base nos jogos anteriores, previ que você provavelmente vai usar a tecla: {tecla}")
+    return tecla
 
-# Criar modelo LSTM simples
-model = Sequential()
-model.add(LSTM(10, input_shape=(tamanho_sequencia, 1)))  # 10 unidades na LSTM
-model.add(Dense(num_classes, activation='softmax'))  # Saída com probabilidade para cada classe
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
+# Função principal para processar CSV e prever
+def processar_e_prever(csv_path, janela=3, epochs=50):
+    df = carregar_dados_csv(csv_path)
+    if df is None or len(df) < janela + 1:
+        print("Sou a LSTM! Não há dados suficientes para previsão.")
+        return None, None, None
+    sequencias = extrair_sequencias_teclas(df)
+    print(f"Sou a LSTM! Encontrei {len(sequencias)} sequências válidas no CSV.")
+    X, y, label_encoder = preparar_dados_lstm(sequencias, janela)
+    num_classes = len(label_encoder.classes_)
+    model = criar_e_treinar_modelo(X, y, num_classes, janela, epochs)
+    ultimos_turnos = sequencias[-janela:]
+    proxima_tecla = prever_proxima_tecla(model, ultimos_turnos, label_encoder, janela)
+    return proxima_tecla, model, label_encoder
 
-# Treinar
-print("Treinando o modelo...")
-model.fit(X, y, epochs=epochs, verbose=1)
+# Função para ser chamada pelo server.py
+def prever_tecla_server(csv_path, model=None, label_encoder=None, ultimos_turnos=None, janela=3):
+    if model is None or label_encoder is None:
+        print("Sou a LSTM! Nenhum modelo pré-treinado encontrado, iniciando novo treinamento...")
+        return processar_e_prever(csv_path, janela)
+    else:
+        print("Sou a LSTM! Usando modelo pré-treinado para previsão.")
+        return prever_proxima_tecla(model, ultimos_turnos, label_encoder, janela), model, label_encoder
 
-# Prever o próximo valor
-ultima_sequencia = np.array(dados_codificados[-tamanho_sequencia:], dtype=np.float32).reshape(1, tamanho_sequencia, 1)
-predicao = model.predict(ultima_sequencia)
-indice_predito = np.argmax(predicao, axis=1)[0]
-valor_predito = indice_para_valor[indice_predito]
-print(f"Próximo valor previsto: {valor_predito}")
+if __name__ == "__main__":
+    csv_path = "Dados/Player1.csv"
+    proxima_tecla, _, _ = processar_e_prever(csv_path)
+    if proxima_tecla:
+        print(f"Próxima tecla prevista: {proxima_tecla}")
+    else:
+        print("Não há dados suficientes para previsão.")
