@@ -95,14 +95,18 @@ async def handler(websocket):
 
                 # Chama a função para salvar o estado do jogo no CSV
                 verifica_ou_cria_arquivo_csv_por_id(user_id, data['state'])
-                await websocket.send("Dados recebidos e armazenados com sucesso.")
+                await websocket.send(json.dumps({
+                    "type": "ack",
+                    "message": "Dados recebidos e armazenados com sucesso."
+                }))
+
                 print(f"CSV salvo com sucesso para {user_id}")
 
             except Exception as e:
                 print("Erro interno:", e)
                 await websocket.send(f"Erro interno: {str(e)}")
     except websockets.ConnectionClosed:
-        print('Cliente desconectado')
+        print('e desconectado')
 
 
 # ===================== Iniciar servidor =====================
