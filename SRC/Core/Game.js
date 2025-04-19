@@ -444,6 +444,7 @@ export class Game {
         efeitosJogador1,
         efeitosJogador2
       }) {
+        console.log(turnoAtual)
         const estado = {
             turnoJogador1: turnoJogador1,
             id: id,

@@ -51,10 +51,9 @@ export class ServerCommunicator{
 
 
     enviarEstadoDoJogo(estadoDoJogo) {
-        console.log(estadoDoJogo)
+        console.log(estadoDoJogo.turnoAtual)
         if (this.isConnected) {
             const mensagem = {
-                type: 'gameState',
                 id: estadoDoJogo.id,
                 state: estadoDoJogo
             };
