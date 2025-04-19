@@ -121,6 +121,7 @@ export class MovementHandler {
             }
 
             proximaRodadaTela.querySelector('#proximaRodadaBotao').onclick = ()=>{
+
                 proximaRodadaTela.style.display = 'none';
                 this.entity.isCentered = false;
                 this.entity.enemy.isCentered = false;

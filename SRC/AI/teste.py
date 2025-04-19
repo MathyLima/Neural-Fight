@@ -1,201 +1,159 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-
+from sklearn.model_selection import train_test_split
+from sklearn.utils.class_weight import compute_class_weight
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
 from tensorflow.keras.optimizers import Adam
-from sklearn.preprocessing import StandardScaler
-from tensorflow.keras.layers import Input  # certifique-se de importar
 from tensorflow.keras.callbacks import EarlyStopping
-# Normalizar a variável de saída (primeiraTeclaJogador1)
 
 class Model:
     def __init__(self, df):
         self.df = df
-        self.scaler = None
 
     def normaliza_dados(self):
         """
-        Normaliza os dados de entrada, excluindo a coluna 'partida' e outras variáveis não numéricas.
+        Normaliza os dados de entrada, convertendo colunas categóricas e mantendo apenas as numéricas.
         """
-        # Selecionar apenas as colunas numéricas (excluindo as colunas de teclas e outras categóricas)
+        if 'turnoJogador1' in self.df.columns:
+            self.df['turnoJogador1'] = self.df['turnoJogador1'].map({'ataque': 0, 'defesa': 1})
+
         colunas_numericas = self.df.select_dtypes(include=[np.number]).columns
+        self.df = self.df[colunas_numericas]
+        return self.df
 
-        # Excluir a coluna 'partida' e qualquer outra coluna que não deve ser normalizada
-        colunas_numericas = [col for col in colunas_numericas if col != 'partida' and col not in ['primeiraTeclaJogador1', 'segundaTeclaJogador1','terceiraTeclaJogador1','quartaTeclaJogador1']]
-
-        # Criar um novo DataFrame apenas com as colunas numéricas
-        dados_numericos = self.df[colunas_numericas]
-
-        # Normalizar os dados
-        scaler = StandardScaler()
-        dados_normalizados = scaler.fit_transform(dados_numericos)
-
-        # Substituir as colunas normalizadas no DataFrame original
-        self.df[colunas_numericas] = dados_normalizados
-
-        return self.df, scaler
-
-    @staticmethod
-    def transforma_rodada_em_vetor(rodada):
-        """
-        Recebe uma linha (série/pandas) e transforma em vetor numérico (array).
-        """
-        # Remove colunas categóricas se houver
-        vetor = rodada.select_dtypes(include=[np.number]).values.astype(np.float32)
-        return vetor
-
-    def cria_sequencias_por_rodada(self, jogo):
-        X, y = [], []
-        # Resetar o índice para garantir continuidade
-        jogo = jogo.reset_index(drop=True)
-
-        # Criar as sequências para cada linha
-        for i in range(len(jogo) - 1):  # Até a penúltima linha
-            entrada = [
-                jogo.iloc[i]['primeiraTeclaJogador1'],
-                jogo.iloc[i]['segundaTeclaJogador1'],
-                jogo.iloc[i]['terceiraTeclaJogador1'],
-                jogo.iloc[i]['quartaTeclaJogador1'],
-                jogo.iloc[i]['vida_jogador1'],
-                jogo.iloc[i]['vida_jogador2'],
-                jogo.iloc[i]['cooldown_jogador1_q'],
-                jogo.iloc[i]['cooldown_jogador1_w'],
-                jogo.iloc[i]['cooldown_jogador1_e'],
-                jogo.iloc[i]['cooldown_jogador1_r'],
-                jogo.iloc[i]['cooldown_jogador1_t'],
-                jogo.iloc[i]['cooldown_jogador1_a'],
-                jogo.iloc[i]['cooldown_jogador1_s'],
-            ]
-            X.append(entrada)
-
-            # O próximo valor (target) é o valor da próxima linha
-            proximo_input = jogo.iloc[i + 1]["primeiraTeclaJogador1"]
-            y.append(proximo_input)
-
-        return np.array(X, dtype=np.float32), np.array(y)
-
-    def gera_todas_sequencias(self):
-        """
-        Cria todas as sequências sem separar por partida.
-        """
+    # 1. Be more selective with features
+    def gera_sequencias_acumuladas(self, colunaDesejada):
         X_geral, y_geral = [], []
-
-        # Garantir que a coluna 'partida' exista
-        if 'partida' not in self.df.columns:
-            raise ValueError("Coluna 'partida' não encontrada no DataFrame.")
-
-        # Remover a divisão por partida e simplesmente iterar sobre o DataFrame
-        # Resetar o índice para garantir continuidade
-        jogo = self.df.reset_index(drop=True)
-
-        print(f"Tamanho do DataFrame: {len(jogo)}")
-
-        # Criar as sequências para cada linha
-        for i in range(len(jogo) - 1):  # Até a penúltima linha
-            entrada = [
-                jogo.iloc[i]['primeiraTeclaJogador1'],
-                jogo.iloc[i]['segundaTeclaJogador1'],
-                jogo.iloc[i]['terceiraTeclaJogador1'],
-                jogo.iloc[i]['quartaTeclaJogador1'],
-                jogo.iloc[i]['vida_jogador1'],
-                jogo.iloc[i]['vida_jogador2'],
-                jogo.iloc[i]['cooldown_jogador1_q'],
-                jogo.iloc[i]['cooldown_jogador1_w'],
-                jogo.iloc[i]['cooldown_jogador1_e'],
-                jogo.iloc[i]['cooldown_jogador1_r'],
-                jogo.iloc[i]['cooldown_jogador1_t'],
-                jogo.iloc[i]['cooldown_jogador1_a'],
-                jogo.iloc[i]['cooldown_jogador1_s'],
-            ]
-            X_geral.append(entrada)
-
-            # O próximo valor (target) é o valor da próxima linha
-            proximo_input = jogo.iloc[i + 1]["primeiraTeclaJogador1"]
-            y_geral.append(proximo_input)
-
-        # Concatenar tudo em um único array
-        X_final = np.array(X_geral, dtype=np.float32)
-        y_final = np.array(y_geral, dtype=np.int32)
-
-        # Ajustar a forma de X para a LSTM (num_sequencias, 1, num_features)
-        X_final = X_final.reshape(X_final.shape[0], 1, X_final.shape[1])
-
-        return X_final, y_final
+        
+        # Define relevant features that actually help predict the next key press
+        relevant_features = [
+            'vida_jogador1', 'vida_jogador2', 
+            'primeiraTeclaJogador1', 'segundaTeclaJogador1', 
+            'terceiraTeclaJogador1', 'quartaTeclaJogador1',
+            'turnoJogador1',  # Keeping this as it indicates attack/defense
+            'teclaDisponivel_1', 'teclaDisponivel_2', 'teclaDisponivel_3',
+            'teclaDisponivel_4', 'teclaDisponivel_5', 'teclaDisponivel_6', 'teclaDisponivel_7'
+        ]
+        
+        for i in range(1, len(self.df) - 1):
+            sequencia = []
+            
+            # Limited context window - use last 5 turns instead of all
+            for j in range(max(0, i-5), i):
+                linha = self.df.iloc[j]
+                sequencia.append([linha[feature] for feature in relevant_features])
+            
+            X_geral.append(sequencia)
+            y_geral.append(self.df.iloc[i][colunaDesejada])
+        
+        # Padding at the end
+        max_len = max(len(seq) for seq in X_geral)
+        for i in range(len(X_geral)):
+            # Use padding that makes more sense for your game state
+            padding_values = [0] * len(relevant_features)
+            while len(X_geral[i]) < max_len:
+                X_geral[i].append(padding_values)  # Pad at the end with zeros
+        
+        return np.array(X_geral, dtype=np.float32), np.array(y_geral, dtype=np.int32)
 
 
-# Supondo que você já tenha carregado seu DataFrame (df)
-df = pd.read_csv("Dados/Player1.csv")  # Ajuste para o caminho correto do seu arquivo
+# Carregando o DataFrame
+df = pd.read_csv("Dados/Player1.csv")
 
-# Criação do modelo com os dados carregados
+# Instanciando e processando os dados
 modelo = Model(df)
+df_normalizado = modelo.normaliza_dados()
+coluna_tecla = 'primeiraTeclaJogador1'
 
-# Normaliza os dados
-df_normalizado, scaler = modelo.normaliza_dados()
-
-# Cria as sequências para a LSTM
-X, y = modelo.gera_todas_sequencias()
+# Gera sequências acumuladas
+X, y = modelo.gera_sequencias_acumuladas(colunaDesejada=coluna_tecla)
 y-=1
 y = y.astype(np.int32)
-# Convertendo y para classes discretas (1 a 7)
-# Verifica o formato dos dados
-print("Shape de X:", X.shape)  # Espera algo como (num_sequencias, 1, num_features)
-print("Shape de y:", y.shape)  # Espera algo como (num_sequencias, )
-print("Valores de y:", y)
-print("Tipo dos elementos:", [type(val) for val in y])
-print("Maior valor em y:", np.max(y))
-print("Menor valor em y:", np.min(y))
-print("Tem NaN?", np.isnan(y).any())
-print("Tem Inf?", np.isinf(y).any())
 
+# Separando dados para treino e teste
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, shuffle=False
+)
 
-print("Máximo de X:", np.max(X))
-print("Mínimo de X:", np.min(X))
-print("Máximo de y:", np.max(y))
-print("Mínimo de y:", np.min(y))
+# Verificações de integridade
+print(f"Shape de X: {X.shape}")
+print(f"Shape de y: {y.shape}")
+print("Classe mais comum:", pd.Series(y).value_counts().idxmax())
 
+# Construindo a rede LSTM
+model = Sequential([
+    Input(shape=(X.shape[1], X.shape[2])),
+    LSTM(100),  # Menos unidades
+    Dense(7, activation='softmax')
+])
 
-print("Valores máximos absolutos:")
-print("Max em y:", np.max(y))
-print("Min em y:", np.min(y))
+model.compile(
+    optimizer=Adam(learning_rate=0.001),
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
 
-print("Valores muito grandes em y:", np.where(y > 2**30))  # índice se houver
+classes = np.unique(y_train)
 
-print("Tem 2147483648 em y?", np.any(y == 2147483648))
-print("Tem 2147483648 em X?", np.any(X == 2147483648))
+# Add class weights but don't make them too extreme
+class_weights = compute_class_weight(
+    class_weight='balanced', 
+    classes=classes, 
+    y=y_train
+)
+# Cap extreme weights
+class_weights = np.clip(class_weights, 0.5, 5.0)
+class_weight_dict = dict(zip(classes, class_weights))
 
-print(df.dtypes)
-print(df.head())
-# Construindo a LSTM com TensorFlow
-model = Sequential()
-model.add(Input(shape=(X.shape[1], X.shape[2])))  # (1, 13)
-model.add(LSTM(units=20))  # tanh padrão
-model.add(Dropout(0.2))
-model.add(Dense(units=7, activation='softmax'))  # 7 classes
-
-model.compile(optimizer=Adam(learning_rate=0.001),
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-
+# Use validation split to monitor overfitting
 early_stop = EarlyStopping(
-    monitor='loss',       # ou 'val_loss' se tiver validação
-    patience=20,          # para de treinar se não melhorar em 20 épocas
+    monitor='val_loss',  # Change to val_loss
+    patience=10,
     restore_best_weights=True
 )
 
-model.fit(X, y, epochs=1000, batch_size=16, callbacks=[early_stop])
+# Add learning rate reduction
+lr_reduction = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor='val_loss', 
+    factor=0.5,
+    patience=5, 
+    min_lr=0.00001
+)
 
-# Avaliando o modelo (ajuste conforme necessário)
-loss, accuracy = model.evaluate(X, y)
-print(f"Loss: {loss}, Accuracy: {accuracy}")
+# Proper validation split
+history = model.fit(
+    X_train, y_train,
+    validation_split=0.2,  # Use validation split
+    epochs=100,  # Start with fewer epochs
+    batch_size=1,  # Smaller batch size for better learning
+    class_weight=class_weight_dict,
+    callbacks=[early_stop, lr_reduction],
+    verbose=1
+)
+from sklearn.metrics import classification_report
+# Detailed evaluation
+y_pred = model.predict(X_test)
+y_pred_classes = np.argmax(y_pred, axis=1)
 
-# Fazendo uma previsão com os dados de entrada
-previsao = model.predict(X)
+# Add 1 back to return to original key values (1-7)
+print("Classification report (classes 0-6):")
+print(classification_report(y_test, y_pred_classes))
 
-# Convertendo as previsões de volta para valores discretos
-previsao_classes = np.argmax(previsao, axis=1) + 1  # As classes vão de 1 a 7
+print("Classification report (original keys 1-7):")
+print(classification_report(y_test+1, y_pred_classes+1))
 
-print(f"Previsões (valores discretos de 1 a 7): {previsao_classes}")
+# Confusion matrix
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+cm = confusion_matrix(y_test, y_pred_classes)
+plt.figure(figsize=(10, 8))
+sns.heatmap(cm, annot=True, fmt='g', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()

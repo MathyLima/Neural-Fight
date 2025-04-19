@@ -153,8 +153,7 @@ export class Game {
             const allCentered = this.fighters.every(f => f.isCentered);
 
             if (allCentered) {
-                const numberInteractions = Math.floor(Math.random() * (4 - 2 + 1)) + 2;
-                if (!this.numberInputs) this.numberInputs = numberInteractions;
+                if (!this.numberInputs) this.numberInputs = 4;
                 this.determinaInputsMostrados()
                 this.fighters.forEach(fighter => {
                     if (!fighter.inputing) {
@@ -173,6 +172,8 @@ export class Game {
 
                    },200)
 
+
+                   
                  
                    if (this.fighters[0]._cancelClickListener) {
                     document.removeEventListener("click", this.fighters[0]._cancelClickListener);
@@ -208,6 +209,7 @@ export class Game {
                         cooldownsPlayer2[key] = attack.currentCooldown;
                     });
                     const teclasPressionadas = this.attackType;
+                    const frozenAttack = [...this.attackType]; // cria uma cópia das teclas escolhidas
                     console.log('Teclas antes do envio:', teclasPressionadas);
                     const dadosJogo = this.gerarEstadoDoJogo({
                         turnoJogador1: this.fighters[0].turno,
@@ -217,10 +219,9 @@ export class Game {
                         vidaJogador2: this.fighters[1].health,
                         turnoAtual: this.round,
                         teclasPressionadasJogador1: Array.isArray(teclasPressionadas) ? [...teclasPressionadas] : teclasPressionadas,
-                        cooldownJogador1: JSON.parse(JSON.stringify(cooldownsPlayer1)),
-                        cooldownJogador2: JSON.parse(JSON.stringify(cooldownsPlayer2)),
                         efeitosJogador1: JSON.parse(JSON.stringify(this.fighters[0].getStatusEffects())),
-                        efeitosJogador2: JSON.parse(JSON.stringify(this.fighters[1].getStatusEffects()))
+                        efeitosJogador2: JSON.parse(JSON.stringify(this.fighters[1].getStatusEffects())),
+                        teclasDisponiveis: JSON.parse(JSON.stringify(this.availableKeys))
                     });
                 
                     this.correctDefense().then(async result => {
@@ -345,7 +346,11 @@ export class Game {
                         this.fighters.forEach(f => {
                             if(f.turno === 'ataque') {
                                 f.enfraquecerDuration = f.decrementMinZero(f.enfraquecerDuration ) 
-                                if(f.enfraquecerDuration === 0) f.damageReduction = 0
+                                if(f.enfraquecerDuration === 0) f.damageReduction = 0;
+                                frozenAttack.forEach(key=>{
+                                  f.comecarCooldownTecla(key)
+                                })
+                                
                             }
                             f.turno = f.turno === 'ataque' ? 'defesa' : 'ataque';
                             f.inputing = false;
@@ -411,9 +416,9 @@ export class Game {
                     if (attack.currentCooldown === 0) { // Se o cooldown for 0, o ataque pode ser feito
                         availableKeys.push(key); // Adiciona a tecla correspondente ao ataque à lista de teclas disponíveis
                     }
-                });
+                }); 
             }
-            this.fighters.forEach(f => f.setRoundKeys(availableKeys));
+            this.fighters.forEach(f => f.setRoundKeys([...availableKeys]));
             return availableKeys.join(','); // Retorna as teclas disponíveis separadas por vírgula
         }
 
@@ -439,10 +444,9 @@ export class Game {
         vidaJogador2,
         teclasPressionadasJogador1,
         turnoAtual,
-        cooldownJogador1,
-        cooldownJogador2,
         efeitosJogador1,
-        efeitosJogador2
+        efeitosJogador2,
+        teclasDisponiveis
       }) {
         console.log(turnoAtual)
         const estado = {
@@ -455,14 +459,12 @@ export class Game {
             },
             teclasPressionadasJogador1: teclasPressionadasJogador1,
             turnoAtual: turnoAtual,
-            cooldown: {
-                jogador1: cooldownJogador1,
-                jogador2: cooldownJogador2
-            },
             efeitos: {
                 jogador1: this.formatarEfeitos(efeitosJogador1,this.fighters[0]),
                 jogador2: this.formatarEfeitos(efeitosJogador2,this.fighters[1])
             },
+
+            teclasDisponiveis:teclasDisponiveis
         };
         console.log(estado.teclasPressionadasJogador1)
         return estado;

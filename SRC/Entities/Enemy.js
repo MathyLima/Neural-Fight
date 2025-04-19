@@ -19,12 +19,25 @@ export class Enemy extends Fighter {
 
     inputTime(){
 
-        const inputList = this.roundKeys
-        this.inputSession = true
-        this.pressedKeys = inputList;
-        this.pressedKeys = ['a','a','a','a'];
-        this.inputSession = false
+                // Supondo que 'this.roundKeys' seja um array de teclas possíveis.
+        const inputList = this.roundKeys;
+
+        // Inicia a sessão de entrada
+        this.inputSession = true;
+
+        // Escolhe 4 teclas aleatórias (com repetição) a partir de inputList
+        this.pressedKeys = [];
+        for (let i = 0; i < 4; i++) {
+            const randomKey = inputList[Math.floor(Math.random() * inputList.length)];
+            this.pressedKeys.push(randomKey);
+            
+        }
         
+        // Termina a sessão de entrada
+        this.inputSession = false;
+
+        console.log(this.pressedKeys); // Exibe as teclas escolhidas
+                
     }
     
     

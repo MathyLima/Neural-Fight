@@ -48,15 +48,27 @@ def flatten_dict(d, parent_key='', sep='_'):
     return dict(items)
 
 # ===================== Tratamento dos dados =====================
+
 def trata_dados_para_csv(user_id, data):
     flattened = flatten_dict(data)
     flattened['type'] = data.get('type', 'gameState')
     flattened['id'] = user_id
 
-    # Padronização de teclas
+    # Padronização de teclas pressionadas
     for key in ['primeiraTeclaJogador1', 'segundaTeclaJogador1', 'terceiraTeclaJogador1', 'quartaTeclaJogador1']:
         tecla = flattened.get(key, '').lower()
         flattened[key] = TECLA_MAP.get(tecla, 0)
+
+    # Transforma teclasDisponiveis em classes numéricas e aplica one-hot
+    teclas_disponiveis_str = flattened.get('teclasDisponiveis', '')
+    teclas_disponiveis_lista = [t.strip().lower() for t in teclas_disponiveis_str.split(',') if t.strip()]
+    teclas_classes = [TECLA_MAP.get(t, 0) for t in teclas_disponiveis_lista]
+
+    for tecla_val in TECLA_MAP.values():
+        flattened[f"teclaDisponivel_{tecla_val}"] = 1 if tecla_val in teclas_classes else 0
+
+    # Substituímos a string original por controle (opcional)
+    flattened['teclasDisponiveis'] = ','.join(str(t) for t in teclas_classes)
 
     # One-hot encoding
     turno_val = [[flattened.get('turnoJogador1', '').lower()]]
@@ -78,17 +90,14 @@ def trata_dados_para_csv(user_id, data):
         elif isinstance(v, str) and v.replace('.', '', 1).isdigit():
             flattened[k] = float(v) if '.' in v else int(v)
 
-    # Definindo todas as colunas esperadas
+    # Colunas esperadas, incluindo teclas individuais
     all_columns = [
         'id', 'numeroInputs', 'vida_jogador1', 'vida_jogador2',
         'primeiraTeclaJogador1', 'segundaTeclaJogador1', 'terceiraTeclaJogador1', 'quartaTeclaJogador1',
-        'turnoAtual', 'cooldown_jogador1_q', 'cooldown_jogador1_w', 'cooldown_jogador1_e',
-        'cooldown_jogador1_t', 'cooldown_jogador1_r', 'cooldown_jogador1_a', 'cooldown_jogador1_s',
-        'cooldown_jogador2_q', 'cooldown_jogador2_w', 'cooldown_jogador2_e',
-        'cooldown_jogador2_t', 'cooldown_jogador2_r', 'cooldown_jogador2_a', 'cooldown_jogador2_s',
-        *turno_cols, *type_cols,
-        'turnoJogador1', 'type', 'partida'
-    ]
+        'turnoAtual',
+        *turno_cols,
+        'turnoJogador1', 'partida'
+    ] + [f"teclaDisponivel_{v}" for v in TECLA_MAP.values()]
 
     for col in all_columns:
         if col not in flattened:
@@ -110,7 +119,8 @@ def salva_dados_csv_por_id(user_id, data):
         writer = csv.DictWriter(f, fieldnames=colunas)
         if not file_exists:
             writer.writeheader()
-        writer.writerow(linha)
+        linha_filtrada = {k: v for k, v in linha.items() if k in colunas}
+        writer.writerow(linha_filtrada)
 
     print("\nCSV atualizado:")
     df = pd.read_csv(filename)

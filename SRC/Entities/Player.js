@@ -17,24 +17,13 @@ export class Player extends Fighter {
 
     storePressedKey(key,inputList) {
         // Impede duplicatas, exceto se a tecla for 'a'
-        if (this.pressedKeys.includes(key) && key !== 'a') return;
-        console.log(inputList)
         this.pressedKeys.push(key);
-        console.log(this.pressedKeys)
         const actualKey = this.pressedKeys.length - 1;
     
-        this.comecarCooldownTecla(key);
 
 
-        let availableKeys = inputList;
-       // Remove todas as teclas de 'pressedKeys' da 'availableKeys', exceto 'a', e também a tecla que chegou
-       availableKeys = availableKeys.filter(k => {
-            if (k === 'a') return true; // nunca remove 'a'
-            if (k === key) return false; // remove a key se não for 'a'
-            return !this.pressedKeys.includes(k); // remove outras teclas que já foram pressionadas
-        });
+       
 
-        document.getElementById('teclasDisponiveis').innerText = `TECLAS DISPONÍVEIS: ${availableKeys.join(', ')}`;
     
         Array.from(document.querySelectorAll('.inputSpace')).forEach((input, index) => {
             if (index === actualKey) {
@@ -62,8 +51,7 @@ export class Player extends Fighter {
             this.lastInput = currentTime;
     
             if (isPressed) {
-                // Evita pressionar a mesma tecla duas vezes
-                if (pressedKeysSet.has(key) && key !== 'a') return;
+                
     
                 // Armazena o tempo e marca a tecla como pressionada
                 this.lastInputTime[key] = currentTime;
