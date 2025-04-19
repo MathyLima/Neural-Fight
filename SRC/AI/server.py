@@ -176,7 +176,7 @@ async def handler(websocket):
                 # Atualiza o DataFrame na memória
                 dataframes_usuarios[user_id] = carregar_csv_para_dataframe(user_id)
 
-                await websocket.send("Dados recebidos e armazenados com sucesso.")
+                await websocket.send(json.dumps({"type": "ok", "message": "Dados recebidos e armazenados com sucesso."}))
                 print(f"CSV salvo com sucesso para {user_id}")
 
             except Exception as e:
