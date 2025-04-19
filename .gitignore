@@ -1,5 +1,6 @@
 # Ignorar ambiente virtual
-venv/
+caio/
+nome_do_ambiente/
 
 # Ignorar arquivos compilados do Python
 __pycache__/
