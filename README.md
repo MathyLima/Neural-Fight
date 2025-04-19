@@ -29,19 +29,16 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
   - O outro é **defensor**
 - Cada jogador insere **uma quantidade determinada de inputs sequenciais** por turno, essa quantidade pode variar entre 2 a 4.
 
-### Comandos de Ataque
-| Tecla | Tipo de Ataque |
-|-------|----------------|
-| `J`   | Ataque 1       |
-| `K`   | Ataque 2       |
-| `L`   | Ataque 3       |
-
-### Comandos de Defesa
-| Tecla | Tipo de Defesa |
-|-------|----------------|
-| `I`   | Defesa 1       |
-| `O`   | Defesa 2       |
-| `P`   | Defesa 3       |
+### Comandos
+| Tecla | Tipo de Ataque     | Efeito           | Dano | Efeito                                        |
+|-------|--------------------|------------------|------|-----------------------------------------------|
+| `Q`   | Especial           | Envenenar        | 5    | Causa 2 de dano por turno (4 turnos),stacka   |
+| `W`   | Especial           | Enfraquecer      | 3    | Reduz ataque em 10% (3 turnos),stacka até 50% |
+| `E`   | Suporte            | Cura             | 1    | Cura o atacante em 10%                        |
+| `R`   | Suporte            | Cura de efeitos  | 0    | Remove todos os efeitos                       |
+| `T`   | Especial           | Sangramento      | 6    | 3 por turno (4 turnos)                        |
+| `A`   | Ataque             | Ataque Básico    | 10   | —                                             |
+| `S`   | Ataque             | Ataque Pesado    | 20   | —                                             |
 
 ---
 
@@ -50,8 +47,9 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 1. O jogador insere seus respectivos comandos.
 2. A IA tenta prever quais são esses comandos e fazer uma contra jogada.
 3. O sistema compara os ataques e defesas:
-   - Defesa correta bloqueia o ataque correspondente.
-   - O dano máximo por rodada é 10%, esse valor é diminuido com o tanto de defesas realizadas com sucesso.
+   - Defesa correta bloqueia o ataque correspondente, a defesa correta é aquela que tem a mesma tecla do ataque.
+   - Se o ataque acertar, são aplicados os danos e os efeitos
+   - A contagem de cooldown só ocorre quando é o atacante
 4. Para cada input:
    - O atacante realiza uma animação (`attack1`, `attack2`, `attack3`).
    - O defensor tenta bloquear se a defesa coincidir.

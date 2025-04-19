@@ -273,7 +273,7 @@ export class Game {
 
                                         switch (primeiroAtaque) {
                                             case 'q':
-                                                danoBase = 2;
+                                                danoBase = 5;
                                                 fighter.envenenar();
                                                 break;
                                             case 'w':
@@ -289,7 +289,7 @@ export class Game {
                                                 fighter.enemy.curarEfeitos();
                                                 break;
                                             case 't':
-                                                danoBase = 5;
+                                                danoBase = 6;
                                                 fighter.sangramento();
                                                 break;
                                             case 'a':
