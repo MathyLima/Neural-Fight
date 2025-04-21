@@ -1,0 +1,40 @@
+{
+    "modelo_id": "contexto5_batch32",
+    "contexto": 5,
+    "batch_size": 32,
+    "resultados": {
+        "tecla_1": {
+            "acuracia_padrao": 0.23571897570584374,
+            "acuracia_ajustada": 0.23571897570584374,
+            "media_opcoes_disponiveis": 3.784635543823242,
+            "baseline_aleatorio": 0.27547603845596313,
+            "melhoria_sobre_aleatorio": 0.8556786775588989
+        },
+        "tecla_2": {
+            "acuracia_padrao": 0.21405121470781352,
+            "acuracia_ajustada": 0.21405121470781352,
+            "media_opcoes_disponiveis": 3.784635543823242,
+            "baseline_aleatorio": 0.27547603845596313,
+            "melhoria_sobre_aleatorio": 0.7770230174064636
+        },
+        "tecla_3": {
+            "acuracia_padrao": 0.22849638870650033,
+            "acuracia_ajustada": 0.22849638870650033,
+            "media_opcoes_disponiveis": 3.784635543823242,
+            "baseline_aleatorio": 0.27547603845596313,
+            "melhoria_sobre_aleatorio": 0.8294601440429688
+        },
+        "tecla_4": {
+            "acuracia_padrao": 0.23637557452396585,
+            "acuracia_ajustada": 0.23637557452396585,
+            "media_opcoes_disponiveis": 3.784635543823242,
+            "baseline_aleatorio": 0.27547603845596313,
+            "melhoria_sobre_aleatorio": 0.858062207698822
+        },
+        "media": {
+            "acuracia_padrao": 0.22866053841103087,
+            "acuracia_ajustada": 0.22866053841103087,
+            "melhoria_sobre_aleatorio": 0.8300560116767883
+        }
+    }
+}

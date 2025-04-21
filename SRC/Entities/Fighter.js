@@ -75,6 +75,164 @@ export class Fighter {
     inputTime(){
         return
     }
+
+
+     inputTimeAutomatico() {
+        const inputList = this.roundKeys; // Teclas disponíveis nesta rodada
+        
+        // Inicializa array de teclas selecionadas
+        let pressedKeys = [];
+        
+        // ===== ANÁLISE DO ESTADO DO JOGO =====
+        const vidaAtual = this.health;
+        const vidaMaxima = 100;
+        const percentualVida = vidaAtual / vidaMaxima;
+        
+        const temEfeito = this.currentEffect.length > 0;
+        const tipoEfeito = temEfeito ? this.currentEffect : null;
+        
+        const modoAtaque = this.turno === 'ataque';
+        const modoDefesa = this.turno === 'defesa';
+        
+        const vidaInimigo = this.opponentHealth;
+        const percentualVidaInimigo = vidaInimigo / vidaMaxima;
+        
+        // Contar disponibilidade de cada tipo de tecla
+        const temE = inputList.includes('e');
+        const temR = inputList.includes('r');
+        const temQ = inputList.includes('q');
+        const temT = inputList.includes('t');
+        const temW = inputList.includes('w');
+        const temY = inputList.includes('y');
+        const temU = inputList.includes('u');
+        
+        // ===== HEURÍSTICAS DE SELEÇÃO =====
+        
+        // Array de prioridades com peso para cada tecla
+        // [tecla, prioridade_base, está_disponível]
+        const prioridades = [
+            ['e', 0, temE], // Cura - prioridade base 0
+            ['r', 0, temR], // Remove efeito - prioridade base 0
+            ['q', 0, temQ], // Dano - prioridade base 0
+            ['t', 0, temT], // Efeito de dano ao longo do tempo - prioridade base 0
+            ['w', 0, temW], // Defesa - prioridade base 0
+            ['y', 0, temY], // Ataque especial - prioridade base 0
+            ['u', 0, temU]  // Defesa especial - prioridade base 0
+        ];
+        
+        // Ajustar prioridades com base no estado do jogo
+        prioridades.forEach(tecla => {
+            const [letra, _, disponivel] = tecla;
+            
+            if (!disponivel) return; // Pula teclas indisponíveis
+            
+            // Lógica para tecla 'e' (cura)
+            if (letra === 'e') {
+                // Prioriza cura quando vida está baixa (exponencialmente mais importante conforme vida diminui)
+                if (percentualVida < 0.9) {
+                    tecla[1] += 10 * Math.pow(1.5, (1 - percentualVida) * 10);
+                }
+            }
+            
+            // Lógica para tecla 'r' (remove efeito)
+            else if (letra === 'r') {
+                // Alta prioridade se tem efeito negativo
+                if (temEfeito ) {
+                    tecla[1] += 15;
+                } else if (temEfeito) {
+                    tecla[1] += 5;
+                }
+            }
+            
+            // Lógica para tecla 'q' (dano direto)
+            else if (letra === 'q') {
+                // Prioriza dano quando em modo ataque
+                if (modoAtaque) {
+                    tecla[1] += 12;
+                } else {
+                    tecla[1] += 6;
+                }
+            }
+            
+            // Lógica para tecla 't' (dano ao longo do tempo)
+            else if (letra === 't') {
+                // Bom para início de combate
+                if (modoAtaque && percentualVidaInimigo > 0.7) {
+                    tecla[1] += 14;
+                } else if (modoAtaque) {
+                    tecla[1] += 8;
+                }
+            }
+            
+            // Lógica para tecla 'w' (defesa)
+            else if (letra === 'w') {
+                // Prioriza defesa quando em modo defesa
+                if (modoDefesa) {
+                    tecla[1] += 12;
+                } else {
+                    tecla[1] += 4;
+                }
+            }
+            
+            // Lógica para tecla 'y' (ataque especial)
+            else if (letra === 'y') {
+                if (modoAtaque && percentualVidaInimigo < 0.4) {
+                    tecla[1] += 15; // Golpe de misericórdia
+                } else if (modoAtaque) {
+                    tecla[1] += 10;
+                }
+            }
+            
+            // Lógica para tecla 'u' (defesa especial)
+            else if (letra === 'u') {
+                if (modoDefesa && percentualVida < 0.3) {
+                    tecla[1] += 15; // Defesa desesperada
+                } else if (modoDefesa) {
+                    tecla[1] += 10;
+                }
+            }
+            
+            // Adicionar um pequeno componente aleatório (menor que antes)
+            tecla[1] += Math.random() * 2; 
+        });
+        
+        // Filtrar apenas teclas disponíveis e ordenar por prioridade
+        const prioridadesFiltradas = prioridades
+            .filter(tecla => tecla[2]) // Filtra só as disponíveis
+            .sort((a, b) => b[1] - a[1]); // Ordena por prioridade descendente
+        
+        // Selecionar as 4 teclas com maior prioridade
+        const teclasEscolhidas = prioridadesFiltradas.slice(0, 4);
+        
+        // Se não tivermos 4 teclas, completar com teclas aleatórias
+        if (teclasEscolhidas.length < 4) {
+            const teclasRestantes = inputList.filter(tecla => 
+                !teclasEscolhidas.some(t => t[0] === tecla));
+            
+            while (teclasEscolhidas.length < 4 && teclasRestantes.length > 0) {
+                const randomIndex = Math.floor(Math.random() * teclasRestantes.length);
+                const teclaAleatoria = teclasRestantes.splice(randomIndex, 1)[0];
+                teclasEscolhidas.push([teclaAleatoria, 0, true]);
+            }
+        }
+        
+        // Extrair apenas as letras das teclas escolhidas
+        pressedKeys = teclasEscolhidas.map(tecla => tecla[0]);
+        
+        // Verificar se temos teclas suficientes
+        if (pressedKeys.length < 4) {
+            console.warn('Não há teclas suficientes disponíveis');
+            // Completar com repetição se necessário
+            while (pressedKeys.length < 4) {
+                pressedKeys.push(pressedKeys[0]);
+            }
+        }
+        
+        console.log('Teclas geradas com heurísticas:', pressedKeys);
+        return pressedKeys;
+    }
+
+
     setEnemy(enemy) {
         this.enemy = enemy;
         this.colissionHandler.otherPlayer = enemy; // Atualiza o manipulador de colisões com o inimigo
@@ -265,6 +423,8 @@ export class Fighter {
             this.die();
             const gameInstance = Game.getInstance();
             gameInstance.gameEnded = true;
+
+            location.reload()
         }
         
     }

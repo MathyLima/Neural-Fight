@@ -93,6 +93,7 @@ export class Game {
 
 
      animate(){
+        this.game_state.gameStarted = true
         if(!this.game_state.gameStarted){
             this.inicioJogo();
         }else{
@@ -397,11 +398,11 @@ export class Game {
         
             document.getElementById('teclasDisponiveis').innerText = `TECLAS DISPONÍVEIS: ${this.availableKeys}`
         
-            document.getElementById('Input').style.display = 'flex';
+           // document.getElementById('Input').style.display = 'flex';
 
             //inicia o input listener de cada jogador
             this.fighters.forEach(fighter=>{
-                fighter.inputTime();
+                fighter.inputTimeAutomatico();
             })
         }
         

@@ -113,7 +113,13 @@ export class MovementHandler {
             this.entity.movingToInitialPosition = false;
             const gameInstance = Game.getInstance();
             this.entity.takeDamageFinal();
-            
+            if(this.entity.turno === 'ataque'){
+                
+                gameInstance.addRound();
+            }
+            this.entity.isCentered = false;
+            this.entity.enemy.isCentered = false;
+            return
             const proximaRodadaTela = document.getElementById('proximaRodada')
             if(!gameInstance.gameEnded){
                 proximaRodadaTela.style.display = 'flex';
