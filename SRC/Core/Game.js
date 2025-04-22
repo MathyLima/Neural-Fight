@@ -93,7 +93,6 @@ export class Game {
 
 
      animate(){
-        this.game_state.gameStarted = true
         if(!this.game_state.gameStarted){
             this.inicioJogo();
         }else{
@@ -165,6 +164,8 @@ export class Game {
                         
                     }
                 });
+
+                
                 
                 const allPlayersReady = this.fighters.every(f => f.pressedKeys.length >= this.numberInputs);
                 if ((allPlayersReady || this.attackType.length >= this.numberInputs || this.defenseType.length >= this.numberInputs) && !this.executandoRodada) {
@@ -398,11 +399,22 @@ export class Game {
         
             document.getElementById('teclasDisponiveis').innerText = `TECLAS DISPONÍVEIS: ${this.availableKeys}`
         
-           // document.getElementById('Input').style.display = 'flex';
+            document.getElementById('Input').style.display = 'flex';
 
             //inicia o input listener de cada jogador
-            this.fighters.forEach(fighter=>{
-                fighter.inputTimeAutomatico();
+            this.fighters.forEach(async (fighter,index)=>{
+                if(index===0){
+                    fighter.inputTime();
+                }else{
+                    this.fazerPredicao(300).then((previsao)=>{
+                        fighter.pressedKeys = previsao;
+                        fighter.inputing = false;
+
+                        console.log(fighter.inputKeys)
+
+                    })
+
+                }
             })
         }
         
@@ -538,5 +550,74 @@ export class Game {
         }
     }
 
+
+
+
+    gerarDadosPredicao(availableKeys) {
+        const defenderFighter = this.fighters.find(fighter => fighter.turno === 'defesa');
+        const attackerFighter = this.fighters.find(fighter => fighter.turno === 'ataque');
+        
+        if (!defenderFighter || !attackerFighter) {
+            console.error('Não foi possível encontrar os lutadores para predição');
+            return null;
+        }
+     
+        // Obter efeitos de status atuais
+        const attackerEffects = JSON.parse(JSON.stringify(attackerFighter.getStatusEffects()));
+        const defenderEffects = JSON.parse(JSON.stringify(defenderFighter.getStatusEffects()));
+        
+        
+        // Formar os dados para predição
+        const dadosPredicao = {
+            turnoJogador1: 'ataque',
+            id: defenderFighter.id,
+            numeroInputs: this.numberInputs || 4,
+            vida: {
+                jogador1: this.fighters[0].health,
+                jogador2: this.fighters[1].health
+            },
+            teclasPressionadasJogador1: Array.isArray(this.attackType) ? [...this.attackType] : [this.attackType],
+            turnoAtual: this.round,
+            efeitos: {
+                jogador1: this.formatarEfeitos(attackerEffects, this.fighters[0]),
+                jogador2: this.formatarEfeitos(defenderEffects, this.fighters[1])
+            },
+            teclasDisponiveis: availableKeys,
+        };
+        
+        return dadosPredicao;
+    }
+
+
+    async fazerPredicao(contexto) {
+        try {
+            // Verificar se o servidor está conectado
+            if (!this.server || !this.server.isConnected) {
+                console.error('Servidor não está conectado');
+                return null;
+            }
+            
+            // Gerar dados para predição
+            const dadosPredicao = this.gerarDadosPredicao(JSON.stringify(this.availableKeys));
+            
+            if (!dadosPredicao) {
+                console.error('Não foi possível gerar dados para predição');
+                return null;
+            }
+            
+            console.log('Enviando dados para predição:', dadosPredicao);
+            
+            // Fazer a solicitação de predição
+            const teclasPrevistas = await this.server.predicao(contexto, dadosPredicao);
+            
+            console.log('Teclas previstas recebidas:', teclasPrevistas);
+            console.log(teclasPrevistas)
+            return teclasPrevistas;
+        } catch (error) {
+            console.error('Erro ao fazer predição:', error);
+            return null;
+        }
+    }
+    
 
 }

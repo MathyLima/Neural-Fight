@@ -1,0 +1,40 @@
+{
+    "modelo_id": "contexto11_batch8",
+    "contexto": 11,
+    "batch_size": 8,
+    "resultados": {
+        "tecla_1": {
+            "acuracia_padrao": 0.7,
+            "acuracia_ajustada": 0.7,
+            "media_opcoes_disponiveis": 4.0,
+            "baseline_aleatorio": 0.25333333015441895,
+            "melhoria_sobre_aleatorio": 2.763157844543457
+        },
+        "tecla_2": {
+            "acuracia_padrao": 0.6,
+            "acuracia_ajustada": 0.6,
+            "media_opcoes_disponiveis": 4.0,
+            "baseline_aleatorio": 0.25333333015441895,
+            "melhoria_sobre_aleatorio": 2.3684210777282715
+        },
+        "tecla_3": {
+            "acuracia_padrao": 0.5,
+            "acuracia_ajustada": 0.5,
+            "media_opcoes_disponiveis": 4.0,
+            "baseline_aleatorio": 0.25333333015441895,
+            "melhoria_sobre_aleatorio": 1.9736841917037964
+        },
+        "tecla_4": {
+            "acuracia_padrao": 0.6,
+            "acuracia_ajustada": 0.6,
+            "media_opcoes_disponiveis": 4.0,
+            "baseline_aleatorio": 0.25333333015441895,
+            "melhoria_sobre_aleatorio": 2.3684210777282715
+        },
+        "media": {
+            "acuracia_padrao": 0.6,
+            "acuracia_ajustada": 0.6,
+            "melhoria_sobre_aleatorio": 2.3684210777282715
+        }
+    }
+}

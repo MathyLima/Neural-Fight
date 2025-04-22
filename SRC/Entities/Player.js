@@ -21,7 +21,6 @@ export class Player extends Fighter {
         const actualKey = this.pressedKeys.length - 1;
     
 
-
        
 
     

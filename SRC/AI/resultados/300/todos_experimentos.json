@@ -1,0 +1,263 @@
+{
+    "experimentos": [
+        {
+            "modelo_id": "contexto1_batch8",
+            "contexto": 1,
+            "batch_size": 8,
+            "acuracia": 0.6745283018867925,
+            "melhoria_aleatorio": 2.5214107036590576
+        },
+        {
+            "modelo_id": "contexto1_batch16",
+            "contexto": 1,
+            "batch_size": 16,
+            "acuracia": 0.6745283018867925,
+            "melhoria_aleatorio": 2.5214107036590576
+        },
+        {
+            "modelo_id": "contexto1_batch32",
+            "contexto": 1,
+            "batch_size": 32,
+            "acuracia": 0.6745283018867925,
+            "melhoria_aleatorio": 2.5214104652404785
+        },
+        {
+            "modelo_id": "contexto2_batch8",
+            "contexto": 2,
+            "batch_size": 8,
+            "acuracia": 0.65625,
+            "melhoria_aleatorio": 2.362499952316284
+        },
+        {
+            "modelo_id": "contexto2_batch16",
+            "contexto": 2,
+            "batch_size": 16,
+            "acuracia": 0.6614583333333334,
+            "melhoria_aleatorio": 2.3812499046325684
+        },
+        {
+            "modelo_id": "contexto2_batch32",
+            "contexto": 2,
+            "batch_size": 32,
+            "acuracia": 0.6614583333333333,
+            "melhoria_aleatorio": 2.3812499046325684
+        },
+        {
+            "modelo_id": "contexto3_batch8",
+            "contexto": 3,
+            "batch_size": 8,
+            "acuracia": 0.7102272727272728,
+            "melhoria_aleatorio": 2.499999761581421
+        },
+        {
+            "modelo_id": "contexto3_batch16",
+            "contexto": 3,
+            "batch_size": 16,
+            "acuracia": 0.7045454545454546,
+            "melhoria_aleatorio": 2.4799997806549072
+        },
+        {
+            "modelo_id": "contexto3_batch32",
+            "contexto": 3,
+            "batch_size": 32,
+            "acuracia": 0.7272727272727273,
+            "melhoria_aleatorio": 2.559999942779541
+        },
+        {
+            "modelo_id": "contexto4_batch8",
+            "contexto": 4,
+            "batch_size": 8,
+            "acuracia": 0.6794871794871795,
+            "melhoria_aleatorio": 2.427480936050415
+        },
+        {
+            "modelo_id": "contexto4_batch16",
+            "contexto": 4,
+            "batch_size": 16,
+            "acuracia": 0.6730769230769231,
+            "melhoria_aleatorio": 2.4045801162719727
+        },
+        {
+            "modelo_id": "contexto4_batch32",
+            "contexto": 4,
+            "batch_size": 32,
+            "acuracia": 0.6602564102564104,
+            "melhoria_aleatorio": 2.358778476715088
+        },
+        {
+            "modelo_id": "contexto5_batch8",
+            "contexto": 5,
+            "batch_size": 8,
+            "acuracia": 0.6571428571428571,
+            "melhoria_aleatorio": 2.4000000953674316
+        },
+        {
+            "modelo_id": "contexto5_batch16",
+            "contexto": 5,
+            "batch_size": 16,
+            "acuracia": 0.6714285714285714,
+            "melhoria_aleatorio": 2.452173948287964
+        },
+        {
+            "modelo_id": "contexto5_batch32",
+            "contexto": 5,
+            "batch_size": 32,
+            "acuracia": 0.6571428571428573,
+            "melhoria_aleatorio": 2.4000000953674316
+        },
+        {
+            "modelo_id": "contexto6_batch8",
+            "contexto": 6,
+            "batch_size": 8,
+            "acuracia": 0.596774193548387,
+            "melhoria_aleatorio": 2.215568780899048
+        },
+        {
+            "modelo_id": "contexto6_batch16",
+            "contexto": 6,
+            "batch_size": 16,
+            "acuracia": 0.6370967741935484,
+            "melhoria_aleatorio": 2.365269184112549
+        },
+        {
+            "modelo_id": "contexto6_batch32",
+            "contexto": 6,
+            "batch_size": 32,
+            "acuracia": 0.6370967741935484,
+            "melhoria_aleatorio": 2.365269184112549
+        },
+        {
+            "modelo_id": "contexto7_batch8",
+            "contexto": 7,
+            "batch_size": 8,
+            "acuracia": 0.5961538461538461,
+            "melhoria_aleatorio": 2.2962963581085205
+        },
+        {
+            "modelo_id": "contexto7_batch16",
+            "contexto": 7,
+            "batch_size": 16,
+            "acuracia": 0.625,
+            "melhoria_aleatorio": 2.407407283782959
+        },
+        {
+            "modelo_id": "contexto7_batch32",
+            "contexto": 7,
+            "batch_size": 32,
+            "acuracia": 0.5961538461538461,
+            "melhoria_aleatorio": 2.2962963581085205
+        },
+        {
+            "modelo_id": "contexto8_batch8",
+            "contexto": 8,
+            "batch_size": 8,
+            "acuracia": 0.6931818181818181,
+            "melhoria_aleatorio": 2.6521739959716797
+        },
+        {
+            "modelo_id": "contexto8_batch16",
+            "contexto": 8,
+            "batch_size": 16,
+            "acuracia": 0.7159090909090908,
+            "melhoria_aleatorio": 2.7391304969787598
+        },
+        {
+            "modelo_id": "contexto8_batch32",
+            "contexto": 8,
+            "batch_size": 32,
+            "acuracia": 0.6704545454545454,
+            "melhoria_aleatorio": 2.5652174949645996
+        },
+        {
+            "modelo_id": "contexto9_batch8",
+            "contexto": 9,
+            "batch_size": 8,
+            "acuracia": 0.5441176470588235,
+            "melhoria_aleatorio": 2.094339609146118
+        },
+        {
+            "modelo_id": "contexto9_batch16",
+            "contexto": 9,
+            "batch_size": 16,
+            "acuracia": 0.6029411764705883,
+            "melhoria_aleatorio": 2.3207545280456543
+        },
+        {
+            "modelo_id": "contexto9_batch32",
+            "contexto": 9,
+            "batch_size": 32,
+            "acuracia": 0.6029411764705882,
+            "melhoria_aleatorio": 2.3207545280456543
+        },
+        {
+            "modelo_id": "contexto10_batch8",
+            "contexto": 10,
+            "batch_size": 8,
+            "acuracia": 0.6153846153846154,
+            "melhoria_aleatorio": 2.4000000953674316
+        },
+        {
+            "modelo_id": "contexto10_batch16",
+            "contexto": 10,
+            "batch_size": 16,
+            "acuracia": 0.5769230769230769,
+            "melhoria_aleatorio": 2.25
+        },
+        {
+            "modelo_id": "contexto10_batch32",
+            "contexto": 10,
+            "batch_size": 32,
+            "acuracia": 0.5576923076923077,
+            "melhoria_aleatorio": 2.174999952316284
+        },
+        {
+            "modelo_id": "contexto11_batch8",
+            "contexto": 11,
+            "batch_size": 8,
+            "acuracia": 0.6,
+            "melhoria_aleatorio": 2.3684210777282715
+        },
+        {
+            "modelo_id": "contexto11_batch16",
+            "contexto": 11,
+            "batch_size": 16,
+            "acuracia": 0.575,
+            "melhoria_aleatorio": 2.2697367668151855
+        },
+        {
+            "modelo_id": "contexto11_batch32",
+            "contexto": 11,
+            "batch_size": 32,
+            "acuracia": 0.525,
+            "melhoria_aleatorio": 2.0723683834075928
+        },
+        {
+            "modelo_id": "seq_completas_batch8",
+            "max_seq_len": 2000,
+            "batch_size": 8,
+            "acuracia": 0.6556603773584906,
+            "melhoria_aleatorio": 2.4508817195892334
+        },
+        {
+            "modelo_id": "seq_completas_batch16",
+            "max_seq_len": 2000,
+            "batch_size": 16,
+            "acuracia": 0.6509433962264151,
+            "melhoria_aleatorio": 2.4332492351531982
+        },
+        {
+            "modelo_id": "seq_completas_batch32",
+            "max_seq_len": 2000,
+            "batch_size": 32,
+            "acuracia": 0.6415094339622641,
+            "melhoria_aleatorio": 2.397984743118286
+        }
+    ],
+    "melhor_modelo": {
+        "modelo_id": "contexto3_batch32",
+        "contexto": 3,
+        "batch_size": 32,
+        "acuracia": 0.7272727272727273,
+        "melhoria_aleatorio": 2.559999942779541
+    }
+}

@@ -1,6 +1,7 @@
 # Ignorar ambiente virtual
 venv/
 venvPython310/
+venvCuda/
 # Ignorar arquivos compilados do Python
 __pycache__/
 *.py[cod]

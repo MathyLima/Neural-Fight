@@ -20,7 +20,7 @@ loadAllImages().then(() => {
         health: initialConfig.game_state.player1Health,
         speed: {x: 0, y: 0},    
         map: initialConfig.map,
-        staggerFrame: 2,
+        staggerFrame: 20,
         input: new Input(),
         attackBox: {
             x: initialConfig.fighters.player1.x - 50,
@@ -47,7 +47,7 @@ loadAllImages().then(() => {
         
         map: initialConfig.map,
         
-        staggerFrame: 2,
+        staggerFrame: 20,
 
         attackBox: {
             x: initialConfig.fighters.enemy1.x - 50,

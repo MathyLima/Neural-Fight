@@ -229,7 +229,7 @@ export class Fighter {
         }
         
         console.log('Teclas geradas com heurísticas:', pressedKeys);
-        return pressedKeys;
+        this.pressedKeys = pressedKeys
     }
 
 

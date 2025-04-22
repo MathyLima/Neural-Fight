@@ -6,6 +6,27 @@ import asyncio
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
 import pandas as pd
+from modelador import *
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.metrics import accuracy_score
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Input, Activation, Masking
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+from datetime import datetime
+import json
+tf.keras.config.enable_unsafe_deserialization()
+
+
+from tensorflow.keras import backend as K
 
 # ===================== One-Hot Encoders Globais =====================
 turno_encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
@@ -144,10 +165,17 @@ async def handler(websocket):
 
                 try:
                     data = json.loads(message)
+
                 except json.JSONDecodeError:
                     await websocket.send("Erro: JSON inválido.")
                     continue
 
+                caminho = data.get('caminho', '').lower()
+                if caminho == 'carregar':
+                    model = data.get('modelo','').lower()
+                    await websocket.send('modelo carregado')
+                    return
+                
                 print("JSON decodificado:", data)
 
                 user_id = str(data.get('id'))
@@ -177,16 +205,106 @@ async def handler(websocket):
                         partida = last_partida
                 else:
                     partida = 1
-
                 data['state']['partida'] = partida
 
-                # Salva dados
-                salva_dados_csv_por_id(user_id, data['state'])
+                if caminho == 'salvar':
+                    # Salva dados
+                    salva_dados_csv_por_id(user_id, data['state'])
 
-                # Atualiza o DataFrame na memória
-                dataframes_usuarios[user_id] = carregar_csv_para_dataframe(user_id)
+                    # Atualiza o DataFrame na memória
+                    dataframes_usuarios[user_id] = carregar_csv_para_dataframe(user_id)
 
-                await websocket.send(json.dumps({"type": "ok", "message": "Dados recebidos e armazenados com sucesso."}))
+                    await websocket.send(json.dumps({"type": "ok", "message": "Dados recebidos e armazenados com sucesso."}))
+                
+                elif caminho == 'inferir':
+                    modelo_id = data.get('modelo')
+                    if not modelo_id:
+                        await websocket.send(json.dumps({"type": "erro", "message": "Nome do modelo não especificado"}))
+                        continue
+                    
+                    try:
+                        # Caminho para o modelo
+                        caminho_modelo = f"modelos/{modelo_id}.keras"
+                        
+                        # Verificar se o modelo existe
+                        if not os.path.exists(caminho_modelo):
+                            await websocket.send(json.dumps({
+                                "type": "erro", 
+                                "message": f"Modelo '{modelo_id}' não encontrado"
+                            }))
+                            continue
+                        
+                        # Carregar modelo
+                        modelo = Modelador.carregar_modelo(caminho_modelo)
+                        
+                        # Preparar o estado atual para inferência
+                        estado_atual = data['state']
+                        
+                        # Formatar corretamente o estado para inferência
+                        estado_formatado = {
+                            'vida_jogador1': estado_atual.get('vida_jogador1', 100),
+                            'vida_jogador2': estado_atual.get('vida_jogador2', 100),
+                            'turnoJogador1': 0 if estado_atual.get('turnoJogador1', '').lower() == 'ataque' else 1,
+                        }
+                        
+                        # Adicionar teclas disponíveis
+                        teclas_disponiveis_str = estado_atual.get('teclasDisponiveis', '')
+                        teclas_disponiveis_lista = [t.strip().lower() for t in teclas_disponiveis_str.split(',') if t.strip()]
+                        
+                        # Mapear teclas disponíveis para o formato esperado pelo modelo
+                        for tecla_key, tecla_val in TECLA_MAP.items():
+                            estado_formatado[f'teclaDisponivel_{tecla_val}'] = 1 if tecla_key in teclas_disponiveis_lista else 0
+                        
+                        # Calcular campos derivados necessários para o modelo
+                        estado_formatado['delta_vida_j1'] = 0  # Pode ser calculado se tiver valores anteriores
+                        estado_formatado['delta_vida_j2'] = 0  # Pode ser calculado se tiver valores anteriores
+                        estado_formatado['ratio_vida'] = estado_formatado['vida_jogador1'] / max(1, estado_formatado['vida_jogador2'])
+                        estado_formatado['total_teclas_disponiveis'] = sum(1 for k in estado_formatado if k.startswith('teclaDisponivel_') and estado_formatado[k] == 1)
+                        
+                        # Adicionar teclas anteriores (usadas no turno anterior)
+                        for i in range(1, 5):
+                            tecla_key = f'tecla_anterior_{i}'
+                            estado_formatado[tecla_key] = estado_atual.get(f'primeiraTeclaJogador1' if i == 1 else 
+                                                                        f'segundaTeclaJogador1' if i == 2 else
+                                                                        f'terceiraTeclaJogador1' if i == 3 else
+                                                                        'quartaTeclaJogador1', 0)
+                        
+                        # Obter a previsão usando o modelador
+                        userid = str(data.get('id', user_id))
+                        caminho_csv = os.path.join('Dados', f"{userid}.csv")
+                        
+                        # Importar a classe Modelador se necessário
+                        modelador = Modelador(pd.DataFrame())  # DataFrame vazio pois só precisamos do método estático
+                        teclas_previstas = modelador.prever_proximas_teclas(
+                            modelo, 
+                            estado_formatado,
+                        )
+                        
+                        # Converter de volta para teclas alfabéticas
+                        tecla_map_reverso = {v: k for k, v in TECLA_MAP.items()}
+                        teclas_alfabeticas = [tecla_map_reverso.get(t+1, '') for t in teclas_previstas]
+                        
+                        # Enviar resposta
+                        resposta = {
+                            "type": "predicao", 
+                            "id": userid,
+                            "teclas_previstas": teclas_alfabeticas,
+                            "teclas_indices": [int(t) for t in teclas_previstas]
+                        }
+                        
+                        # Registrar a previsão para depuração
+                        print(f"Previsão para {userid}: {teclas_alfabeticas}")
+                        
+                        # Enviar resposta ao cliente
+                        await websocket.send(json.dumps(resposta))
+                        
+                    except Exception as e:
+                        print(f"Erro na inferência: {str(e)}")
+                        await websocket.send(json.dumps({
+                            "type": "erro", 
+                            "message": f"Erro ao realizar inferência: {str(e)}"
+                        }))
+
                 print(f"CSV salvo com sucesso para {user_id}")
 
             except Exception as e:
