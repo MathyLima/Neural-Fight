@@ -1,9 +1,0 @@
-Comentários sobre os Resultados
-
-Cada resultado apresentado corresponde a um modelo treinado com um contexto específico 
-(quantidade de dados de entrada) e um batch size diferente. Essas informações estão indicadas 
-no nome de cada arquivo.
-
-O gráfico "grafico_acuracia_300.png" mostra como a acurácia final dos modelos varia de acordo 
-com o batch size em cada contexto. Cada linha representa um contexto distinto, permitindo 
-comparar o desempenho das configurações testadas.
