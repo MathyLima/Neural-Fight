@@ -161,7 +161,7 @@ class Modelador:
         import tensorflow as tf
         import numpy as np
         
-        print('ola')
+      
         """
         Faz previsão das próximas teclas a serem pressionadas com base em um estado atual.
         Preenche automaticamente o contexto histórico com dados do CSV.
@@ -184,7 +184,7 @@ class Modelador:
         
         colunas_numericas = df.select_dtypes(include=[np.number]).columns
         df = df[colunas_numericas]
-        print('ola 2')
+      
         # Features que o modelo espera, na ordem correta
         features = [
             'vida_jogador1', 'vida_jogador2', 'turnoJogador1',
@@ -211,7 +211,7 @@ class Modelador:
                 else:
                     estado.append(0)
             sequencia.append(estado)
-        print('ola 3')
+      
         # Adicionar o estado atual fornecido pelo usuário
         estado_final = []
         for feature in features:
@@ -247,7 +247,7 @@ class Modelador:
         
         try:
             previsoes = modelo.predict(X, verbose=0)
-            print('ola 4')
+       
             
             # Converter saídas para índices de teclas (0-6)
             teclas_previstas = [np.argmax(previsao[0]) for previsao in previsoes]

@@ -107,3 +107,47 @@ game = new Game({
 });
 
 game.startGame();
+
+## 🧠 Execução da IA (TensorFlow + LSTM)
+
+A IA do jogo é baseada em uma LSTM treinada com TensorFlow. Para executá-la corretamente, siga os passos abaixo com atenção. (Utilizamos Windows).
+
+⚠️ IMPORTANTE: A IA requer Python 3.10. Versões superiores (3.11, 3.12..) não são compatíveis.
+
+Abra o terminal e navegue até o diretório onde está o código da IA e o arquivo de dependências:
+
+cd .\Neural-Fight\SRC\AI\
+
+
+Dentro desta pasta, crie um ambiente virtual com o nome `venv`:
+
+python -m venv venv
+
+
+Ative o ambiente virtual:
+
+.\venv\Scripts\activate
+
+
+Com o ambiente ativado, instale as dependências listadas no `requirements.txt`:
+
+pip install -r requirements.txt
+
+
+Esse comando instalará as bibliotecas necessárias para o funcionamento da IA, incluindo TensorFlow, Scikit-Learn, Pandas, NumPy, entre outras.
+
+Agora, para rodar a IA, execute o script principal:
+
+python server.py
+
+Caso ocorra erro com o `pip`, atualize-o com:
+
+python -m pip install --upgrade pip
+
+
+Com isso, a IA estará pronta para execução. Toda a lógica está centralizada na 
+pasta `.\Neural-Fight\SRC\AI\`. 
+
+Para iniciar o jogo, abra o arquivo index.html com Open With Live Server.
+
+Os dados de cada jogada são carregados para um arquivo csv e utilizados para treinar um modelo LSTM responsável por analisar o comportamento do usuário no jogo.
