@@ -92,22 +92,6 @@ Este é um jogo de luta baseado em turnos implementado em JavaScript com uso de 
 - `turno`: "ataque" ou "defesa"
 
 ---
-
-## 📦 Estrutura Básica
-- O jogo carrega suas configurações através do arquivo config.js, lá são descritas as configurações iniciais e de sprites.
-```js
-game = new Game({
-  round: 0,
-  fighters: [player1, player2],
-  game_state: { gameStarted: false },
-  renderer,
-  canvas,
-  context,
-  map
-});
-
-game.startGame();
-
 ## 🧠 Execução da IA (TensorFlow + LSTM)
 
 A IA do jogo é baseada em uma LSTM treinada com TensorFlow. Para executá-la corretamente, siga os passos abaixo com atenção. (Utilizamos Windows).
@@ -151,3 +135,20 @@ pasta `.\Neural-Fight\SRC\AI\`.
 Para iniciar o jogo, abra o arquivo index.html com Open With Live Server.
 
 Os dados de cada jogada são carregados para um arquivo csv e utilizados para treinar um modelo LSTM responsável por analisar o comportamento do usuário no jogo.
+
+---
+## 📦 Estrutura Básica
+- O jogo carrega suas configurações através do arquivo config.js, lá são descritas as configurações iniciais e de sprites.
+```js
+game = new Game({
+  round: 0,
+  fighters: [player1, player2],
+  game_state: { gameStarted: false },
+  renderer,
+  canvas,
+  context,
+  map
+});
+
+game.startGame();
+
