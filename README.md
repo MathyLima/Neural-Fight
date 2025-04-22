@@ -134,7 +134,7 @@ pasta `.\Neural-Fight\SRC\AI\`.
 
 Para iniciar o jogo, abra o arquivo index.html com Open With Live Server.
 
-Os dados de cada jogada são carregados para um arquivo csv e utilizados para treinar um modelo LSTM responsável por analisar o comportamento do usuário no jogo.
+Os dados de cada turno jogado são carregados para um arquivo csv (Player1.csv) e utilizados para treinar um modelo LSTM responsável por analisar o comportamento do usuário no jogo.
 
 ---
 ## 📦 Estrutura Básica
