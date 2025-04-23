@@ -40,7 +40,6 @@ dataframes_usuarios = {}
 
 TECLA_MAP = {
     'q': 1, 'w': 2, 'e': 3, 'r': 4, 't': 5, 'a': 6, 's': 7,
-    # Adicione mais teclas conforme necessário
 }
 
 # ===================== Função para achatar JSON =====================
@@ -75,12 +74,12 @@ def trata_dados_para_csv(user_id, data):
     flattened['type'] = data.get('type', 'gameState')
     flattened['id'] = user_id
 
-    # Padronização de teclas pressionadas
+
     for key in ['primeiraTeclaJogador1', 'segundaTeclaJogador1', 'terceiraTeclaJogador1', 'quartaTeclaJogador1']:
         tecla = flattened.get(key, '').lower()
         flattened[key] = TECLA_MAP.get(tecla, 0)
 
-    # Transforma teclasDisponiveis em classes numéricas e aplica one-hot
+
     teclas_disponiveis_str = flattened.get('teclasDisponiveis', '')
     teclas_disponiveis_lista = [t.strip().lower() for t in teclas_disponiveis_str.split(',') if t.strip()]
     teclas_classes = [TECLA_MAP.get(t, 0) for t in teclas_disponiveis_lista]
@@ -88,10 +87,8 @@ def trata_dados_para_csv(user_id, data):
     for tecla_val in TECLA_MAP.values():
         flattened[f"teclaDisponivel_{tecla_val}"] = 1 if tecla_val in teclas_classes else 0
 
-    # Substituímos a string original por controle (opcional)
     flattened['teclasDisponiveis'] = ','.join(str(t) for t in teclas_classes)
 
-    # One-hot encoding
     turno_val = [[flattened.get('turnoJogador1', '').lower()]]
     type_val = [[flattened.get('type', '').lower()]]
 
@@ -104,14 +101,12 @@ def trata_dados_para_csv(user_id, data):
     flattened.update(dict(zip(turno_cols, turno_ohe)))
     flattened.update(dict(zip(type_cols, type_ohe)))
 
-    # Padroniza valores vazios ou numéricos
     for k, v in flattened.items():
         if isinstance(v, str) and v.strip() == '':
             flattened[k] = 0
         elif isinstance(v, str) and v.replace('.', '', 1).isdigit():
             flattened[k] = float(v) if '.' in v else int(v)
 
-    # Colunas esperadas, incluindo teclas individuais
     all_columns = [
         'id', 'numeroInputs', 'vida_jogador1', 'vida_jogador2',
         'primeiraTeclaJogador1', 'segundaTeclaJogador1', 'terceiraTeclaJogador1', 'quartaTeclaJogador1',
@@ -183,13 +178,12 @@ async def handler(websocket):
                     await websocket.send("Erro: JSON deve conter campo 'id'.")
                     continue
 
-                # Verifica e carrega CSV
+               
                 if user_id not in usuarios_processados:
                     usuarios_processados.add(user_id)
                     df = carregar_csv_para_dataframe(user_id)
                     dataframes_usuarios[user_id] = df
 
-                # Verifica último turno e define a partida
                 df = dataframes_usuarios[user_id]
                 last_row = df.iloc[-1] if not df.empty else None
                 current_turn = data['state'].get('turnoAtual')
@@ -208,10 +202,10 @@ async def handler(websocket):
                 data['state']['partida'] = partida
 
                 if caminho == 'salvar':
-                    # Salva dados
+                    
                     salva_dados_csv_por_id(user_id, data['state'])
 
-                    # Atualiza o DataFrame na memória
+                
                     dataframes_usuarios[user_id] = carregar_csv_para_dataframe(user_id)
 
                     await websocket.send(json.dumps({"type": "ok", "message": "Dados recebidos e armazenados com sucesso."}))
@@ -223,10 +217,10 @@ async def handler(websocket):
                         continue
                     
                     try:
-                        # Caminho para o modelo
+                      
                         caminho_modelo = f"modelos/{modelo_id}.keras"
                         
-                        # Verificar se o modelo existe
+                        
                         if not os.path.exists(caminho_modelo):
                             await websocket.send(json.dumps({
                                 "type": "erro", 
@@ -234,34 +228,33 @@ async def handler(websocket):
                             }))
                             continue
                         
-                        # Carregar modelo
+                     
                         modelo = Modelador.carregar_modelo(caminho_modelo)
                         
-                        # Preparar o estado atual para inferência
+                    
                         estado_atual = data['state']
                         
-                        # Formatar corretamente o estado para inferência
                         estado_formatado = {
                             'vida_jogador1': estado_atual.get('vida_jogador1', 100),
                             'vida_jogador2': estado_atual.get('vida_jogador2', 100),
                             'turnoJogador1': 0 if estado_atual.get('turnoJogador1', '').lower() == 'ataque' else 1,
                         }
                         
-                        # Adicionar teclas disponíveis
+                      
                         teclas_disponiveis_str = estado_atual.get('teclasDisponiveis', '')
                         teclas_disponiveis_lista = [t.strip().lower() for t in teclas_disponiveis_str.split(',') if t.strip()]
                         
-                        # Mapear teclas disponíveis para o formato esperado pelo modelo
+                      
                         for tecla_key, tecla_val in TECLA_MAP.items():
                             estado_formatado[f'teclaDisponivel_{tecla_val}'] = 1 if tecla_key in teclas_disponiveis_lista else 0
                         
-                        # Calcular campos derivados necessários para o modelo
-                        estado_formatado['delta_vida_j1'] = 0  # Pode ser calculado se tiver valores anteriores
-                        estado_formatado['delta_vida_j2'] = 0  # Pode ser calculado se tiver valores anteriores
+                       
+                        estado_formatado['delta_vida_j1'] = 0  
+                        estado_formatado['delta_vida_j2'] = 0  
                         estado_formatado['ratio_vida'] = estado_formatado['vida_jogador1'] / max(1, estado_formatado['vida_jogador2'])
                         estado_formatado['total_teclas_disponiveis'] = sum(1 for k in estado_formatado if k.startswith('teclaDisponivel_') and estado_formatado[k] == 1)
                         
-                        # Adicionar teclas anteriores (usadas no turno anterior)
+                 
                         for i in range(1, 5):
                             tecla_key = f'tecla_anterior_{i}'
                             estado_formatado[tecla_key] = estado_atual.get(f'primeiraTeclaJogador1' if i == 1 else 
@@ -269,22 +262,22 @@ async def handler(websocket):
                                                                         f'terceiraTeclaJogador1' if i == 3 else
                                                                         'quartaTeclaJogador1', 0)
                         
-                        # Obter a previsão usando o modelador
+                      
                         userid = str(data.get('id', user_id))
                         caminho_csv = os.path.join('Dados', f"{userid}.csv")
                         
-                        # Importar a classe Modelador se necessário
-                        modelador = Modelador(pd.DataFrame())  # DataFrame vazio pois só precisamos do método estático
+                    
+                        modelador = Modelador(pd.DataFrame())  
                         teclas_previstas = modelador.prever_proximas_teclas(
                             modelo, 
                             estado_formatado,
                         )
                         
-                        # Converter de volta para teclas alfabéticas
+                  
                         tecla_map_reverso = {v: k for k, v in TECLA_MAP.items()}
                         teclas_alfabeticas = [tecla_map_reverso.get(t+1, '') for t in teclas_previstas]
                         
-                        # Enviar resposta
+                    
                         resposta = {
                             "type": "predicao", 
                             "id": userid,
@@ -292,10 +285,9 @@ async def handler(websocket):
                             "teclas_indices": [int(t) for t in teclas_previstas]
                         }
                         
-                        # Registrar a previsão para depuração
+                      
                         print(f"Previsão para {userid}: {teclas_alfabeticas}")
-                        
-                        # Enviar resposta ao cliente
+             
                         await websocket.send(json.dumps(resposta))
                         
                     except Exception as e:
