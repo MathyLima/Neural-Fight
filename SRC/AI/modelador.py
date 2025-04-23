@@ -55,9 +55,9 @@ class Modelador:
         for partida_id in partidas:
             df_partida = self.df[self.df['partida'] == partida_id].reset_index(drop=True)
             
-            # Para cada momento da partida (exceto os últimos que serão alvos)
+     
             for i in range(len(df_partida) - 1):
-                # Obter estado atual
+    
                 estado_atual = []
                 for feature in features:
                     if feature in df_partida.columns:
@@ -65,10 +65,10 @@ class Modelador:
                     else:
                         estado_atual.append(0)
                 
-                # Target: próximas teclas escolhidas
+ 
                 proximas_teclas = df_partida.iloc[i+1][colunas_desejadas].values - 1
                 
-                X_geral.append([estado_atual])  # Uma sequência com timestep=1
+                X_geral.append([estado_atual]) 
                 y_geral.append(proximas_teclas)
         
         return np.array(X_geral, dtype=np.float32), np.array(y_geral, dtype=np.int32)
@@ -101,7 +101,6 @@ class Modelador:
                             estado.append(0)
                     sequencia.append(estado)
                 
-                # Target: próximas teclas escolhidas
                 proximas_teclas = df_partida.iloc[i+1][colunas_desejadas].values - 1
                 
                 X_geral.append(sequencia)
@@ -118,20 +117,18 @@ class Modelador:
             'delta_vida_j1', 'delta_vida_j2', 'ratio_vida', 'total_teclas_disponiveis',
             'tecla_anterior_1', 'tecla_anterior_2', 'tecla_anterior_3', 'tecla_anterior_4']
         
-        # Agrupar por partida
+   
         partidas = self.df['partida'].unique()
         
-        # Determinar o comprimento máximo da sequência se não for especificado
+ 
         if max_seq_len is None:
             max_seq_len = max([len(self.df[self.df['partida'] == p]) for p in partidas])
             print(f"Comprimento máximo de sequência detectado: {max_seq_len}")
         
         for partida_id in partidas:
             df_partida = self.df[self.df['partida'] == partida_id].reset_index(drop=True)
-            
-            # Para cada momento da partida exceto o primeiro
+
             for i in range(1, len(df_partida) - 1):
-                # Obter todos os estados anteriores incluindo o atual
                 sequencia = []
                 for j in range(max(0, i - max_seq_len + 1), i + 1):
                     estado = []
@@ -142,12 +139,11 @@ class Modelador:
                             estado.append(0)
                     sequencia.append(estado)
                 
-                # Padding para garantir mesmo tamanho de sequência
+             
                 while len(sequencia) < max_seq_len:
-                    # Adiciona zeros para padding no início da sequência
+               
                     sequencia.insert(0, [0.0] * len(features))
-                
-                # Target: próximas teclas escolhidas
+        
                 proximas_teclas = df_partida.iloc[i+1][colunas_desejadas].values - 1
                 
                 X_geral.append(sequencia)
@@ -157,7 +153,6 @@ class Modelador:
 
     @staticmethod
     def prever_proximas_teclas(modelo, estado_atual, caminho_csv="Dados/Player1.csv", max_seq_len=4):
-        # Import at the beginning of the method to ensure it's available throughout
         import tensorflow as tf
         import numpy as np
         
@@ -178,7 +173,6 @@ class Modelador:
         # Carregar dados históricos
         df = pd.read_csv(caminho_csv)
         
-        # Normalizar dados (similar ao que foi feito durante o treinamento)
         if 'turnoJogador1' in df.columns:
             df['turnoJogador1'] = df['turnoJogador1'].map({'ataque': 0, 'defesa': 1})
         
@@ -198,10 +192,9 @@ class Modelador:
         ultima_partida = df['partida'].max()
         df_ultima_partida = df[df['partida'] == ultima_partida].reset_index(drop=True)
         
-        # Criar sequência com histórico + estado atual
+      
         sequencia = []
         
-        # Obter os últimos max_seq_len-1 estados da partida
         num_estados = min(max_seq_len-1, len(df_ultima_partida))
         for i in range(len(df_ultima_partida) - num_estados, len(df_ultima_partida)):
             estado = []
@@ -212,12 +205,12 @@ class Modelador:
                     estado.append(0)
             sequencia.append(estado)
       
-        # Adicionar o estado atual fornecido pelo usuário
+     
         estado_final = []
         for feature in features:
             if feature in estado_atual:
                 estado_final.append(estado_atual[feature])
-            elif len(sequencia) > 0:  # Usar o último valor disponível
+            elif len(sequencia) > 0: 
                 ultimo_idx = len(sequencia) - 1
                 feature_idx = features.index(feature) if feature in features else -1
                 if feature_idx >= 0 and feature_idx < len(sequencia[ultimo_idx]):
@@ -284,7 +277,7 @@ class Modelador:
             
         try:
             # Definir formato esperado da entrada
-            input_shape = (4, 18)  # Ajuste conforme o esperado pelo seu modelo
+            input_shape = (4, 18) 
             
             # Reconstruir o modelo do zero para garantir o namespace correto de 'tf'
             modelo = build_model_masked(input_shape)
@@ -337,21 +330,16 @@ def build_model_masked(input_shape, units=64, dropout_rate=0.2, lr=0.001):
     lstm_output = LSTM(units)(masked_input)
     lstm_output = Dropout(dropout_rate)(lstm_output)
     
-    # Extrair a máscara de disponibilidade do último estado da sequência
-    # Usando operações Keras-compatíveis
     last_timestep = tf.keras.layers.Lambda(
-        lambda x: x[:, -1, 3:10],  # Extrai as flags de disponibilidade (índices 3-9)
-        output_shape=(7,)  # Especificar explicitamente a forma de saída
+        lambda x: x[:, -1, 3:10],  
+        output_shape=(7,)  
     )(input_layer)
     
     # Saídas para cada posição de tecla
     outputs = []
     for i in range(4):
-        # Prever logits para todas as 7 classes
         logits = Dense(7, name=f'logits_{i+1}')(lstm_output)
         
-        # Aplicar máscara usando camadas do Keras e garantindo que 'tf' está disponível
-        # Use um closure para capturar a referência ao 'tf'
         def create_masking_lambda(tensorflow):
             return tf.keras.layers.Lambda(
                 lambda inputs: inputs[0] + tensorflow.math.log(tensorflow.clip_by_value(inputs[1], 1e-9, 1.0)) * 1e9,
@@ -360,7 +348,7 @@ def build_model_masked(input_shape, units=64, dropout_rate=0.2, lr=0.001):
         
         masked_logits = create_masking_lambda(tf)([logits, last_timestep])
         
-        # Softmax nas logits mascaradas
+   
         outputs.append(Activation('softmax', name=f'tecla{i+1}')(masked_logits))
     
     model = Model(inputs=input_layer, outputs=outputs)
@@ -371,7 +359,7 @@ def build_model_masked(input_shape, units=64, dropout_rate=0.2, lr=0.001):
     )
     return model
 
-# Wrapper class for model
+
 class MaskedMultiOutputKerasWrapper(BaseEstimator, ClassifierMixin):
     """Wrapper para modelo com mascaramento"""
     def __init__(self, input_shape, epochs=50, batch_size=16, verbose=0, units=64, dropout_rate=0.2, lr=0.001):
@@ -419,19 +407,17 @@ class MaskedMultiOutputKerasWrapper(BaseEstimator, ClassifierMixin):
 def evaluate_model_with_masks(model, X_test, y_test):
     import tensorflow as tf
     """Avalia modelo com métricas de disponibilidade"""
-    # Prever classes
+
     y_preds = model.predict(X_test)
     
-    # Extrair máscaras de disponibilidade do último estado
+
     availability_masks = X_test[:, X_test.shape[1]-1, 3:10]
     
     # Calcular métricas para cada posição
     results = {}
     for i in range(4):
-        # Acurácia padrão
         standard_acc = accuracy_score(y_test[:, i], y_preds[:, i])
-        
-        # Calcular acurácia considerando disponibilidade
+   
         correct = 0
         total = 0
         for j in range(len(y_test)):
@@ -440,10 +426,10 @@ def evaluate_model_with_masks(model, X_test, y_test):
             total += 1
         masked_acc = correct / total if total > 0 else 0
         
-        # Média de opções disponíveis
+  
         avg_options = np.mean(np.sum(availability_masks, axis=1))
         
-        # Acurácia aleatória esperada
+
         random_baseline = np.mean([1.0/np.sum(mask) if np.sum(mask) > 0 else 0 
                                   for mask in availability_masks])
         
@@ -470,11 +456,11 @@ def converter_para_serializavel(obj):
     elif isinstance(obj, list):
         return [converter_para_serializavel(v) for v in obj]
     elif isinstance(obj, np.generic):
-        return obj.item()  # Converte np.float32, np.int64, etc.
+        return obj.item()  
     else:
         return obj
 
-# Função para treinar modelo com sequências completas e batch size específico
+
 def treinar_modelo_sequencias_completas(modelo, colunas_teclas, batch_size, max_seq_len=50):
     modelo_id = f"seq_completas_batch{batch_size}"
     print(f"\n\n===== TREINANDO MODELO: SEQUÊNCIAS COMPLETAS, MAX_LEN {max_seq_len}, BATCH SIZE {batch_size} =====")
@@ -509,15 +495,13 @@ def treinar_modelo_sequencias_completas(modelo, colunas_teclas, batch_size, max_
     try:
         clf.fit(X_train, y_train)
         
-        # Avaliar
+     
         results = evaluate_model_with_masks(clf, X_test, y_test)
         
-        # Mostrar resultados
         print(f"\nResultados para sequências completas, batch_size={batch_size}:")
         print(f"Acurácia média: {results['media']['acuracia_padrao']:.4f}")
         print(f"Melhoria sobre aleatório: {results['media']['melhoria_sobre_aleatorio']:.4f}x")
         
-        # Salvar modelo
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"modelos/{modelo_id}_{timestamp}.keras"
         
@@ -562,16 +546,13 @@ def treinar_modelo_contexto_batch(modelo, colunas_teclas, contexto, batch_size):
     modelo_id = f"contexto{contexto}_batch{batch_size}"
     print(f"\n\n===== TREINANDO MODELO: CONTEXTO {contexto}, BATCH SIZE {batch_size} =====")
     
-    # Gerar os dados
     X, y = modelo.gera_sequencias_com_contexto(colunas_teclas, contexto=contexto)
     print(f"Shape dos dados: X={X.shape}, y={y.shape}")
     
-    # Split treino/teste
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
     
-    # Parâmetros fixos para economizar tempo
     input_shape = (X.shape[1], X.shape[2])
     units = 64
     dropout_rate = 0.2
@@ -588,19 +569,17 @@ def treinar_modelo_contexto_batch(modelo, colunas_teclas, contexto, batch_size):
         lr=lr
     )
     
-    # Treinar
     try:
         clf.fit(X_train, y_train)
         
-        # Avaliar
+    
         results = evaluate_model_with_masks(clf, X_test, y_test)
-        
-        # Mostrar resultados
+
         print(f"\nResultados para contexto={contexto}, batch_size={batch_size}:")
         print(f"Acurácia média: {results['media']['acuracia_padrao']:.4f}")
         print(f"Melhoria sobre aleatório: {results['media']['melhoria_sobre_aleatorio']:.4f}x")
         
-        # Salvar modelo
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"modelos/{modelo_id}_{timestamp}.keras"
         
@@ -641,28 +620,24 @@ def treinar_modelo_contexto_batch(modelo, colunas_teclas, contexto, batch_size):
 
 # Função para plotar resultados dos experimentos
 def plotar_resultados(resultados):
-    # Preparar dados para plot
+
     df_resultados = pd.DataFrame(resultados)
-    
-    # Filtrar apenas resultados bem-sucedidos
+
     df_resultados = df_resultados.dropna(subset=['acuracia'])
     
-    # Determinar se temos modelos de sequências completas
     tem_seq_completa = any('seq_completas' in r.get('modelo_id', '') for r in resultados)
     
-    # Separar dataframes para os dois tipos de modelo
     if tem_seq_completa:
         df_contexto = df_resultados[df_resultados['modelo_id'].str.contains('contexto')].copy()
         df_seq_completa = df_resultados[df_resultados['modelo_id'].str.contains('seq_completas')].copy()
         
-        # Criar figura com três subplots
         fig, axes = plt.subplots(1, 3, figsize=(24, 6))
     else:
         df_contexto = df_resultados.copy()
-        # Criar figura com dois subplots
+   
         fig, axes = plt.subplots(1, 2, figsize=(18, 6))
     
-    # Plot 1 e 2: Resultados para modelos de contexto
+
     if not df_contexto.empty:
         pivot1 = df_contexto.pivot(index='contexto', columns='batch_size', values='acuracia')
         if not pivot1.empty:
@@ -678,9 +653,7 @@ def plotar_resultados(resultados):
             axes[1].set_xlabel('Batch Size')
             axes[1].set_ylabel('Tamanho do Contexto')
     
-    # Plot 3: Resultados para modelos de sequências completas (se existirem)
     if tem_seq_completa and not df_seq_completa.empty:
-        # Criar barplot comparando os batch sizes para sequências completas
         sns.barplot(x='batch_size', y='acuracia', data=df_seq_completa, ax=axes[2])
         axes[2].set_title('Acurácia para Sequências Completas por Batch Size')
         axes[2].set_xlabel('Batch Size')
@@ -688,7 +661,6 @@ def plotar_resultados(resultados):
     
     plt.tight_layout()
     
-    # Salvar figura
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     plt.savefig(f"resultados/comparacao_modelos_{timestamp}.png")
     print(f"Gráfico salvo como: resultados/comparacao_modelos_{timestamp}.png")
@@ -702,14 +674,10 @@ def carregar_modelo(caminho_modelo):
         e carregando apenas os pesos.
         """
         try:
-            # Definir input_shape com base no contexto=3
-            # Assumindo que você tenha 18 features por entrada
-            input_shape = (4, 18)  # Contexto 3 + estado atual = 4 timesteps
-            
-            # Rebuild the model architecture
+            input_shape = (4, 18)
+ 
             modelo = build_model_masked(input_shape)
             
-            # Load just the weights
             modelo.load_weights(caminho_modelo)
             print(f"Pesos do modelo carregados com sucesso de: {caminho_modelo}")
             return modelo
@@ -717,7 +685,6 @@ def carregar_modelo(caminho_modelo):
         except Exception as e:
             print(f"Erro detalhado ao carregar o modelo: {str(e)}")
             
-            # Try with by_name=True if standard loading fails
             try:
                 modelo = build_model_masked(input_shape)
                 modelo.load_weights(caminho_modelo, by_name=True)

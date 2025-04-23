@@ -1,14 +1,14 @@
 export class Game {
   static #instance = null;
   constructor(config) {
-    this.round = config.round; // Número da rodada
-    this.fighters = config.fighters; // Lista de lutadores
-    this.game_state = config.game_state; // Estado do jogo
-    this.renderer = config.renderer; // Renderizador
-    this.canvas = config.canvas; // Canvas do jogo
-    this.context = config.context; // Contexto do canvas
-    this.map = config.map; // Referência ao mapa
-    this.audio = new Audio("../../Assets/Audios/Background.mp3"); // Substitua pelo caminho da sua música
+    this.round = config.round;
+    this.fighters = config.fighters;
+    this.game_state = config.game_state;
+    this.renderer = config.renderer;
+    this.canvas = config.canvas;
+    this.context = config.context;
+    this.map = config.map;
+    this.audio = new Audio("../../Assets/Audios/Background.mp3");
     this.animationFrameId = null;
     this.animate = this.animate.bind(this);
     this.numberInputs;
@@ -33,7 +33,6 @@ export class Game {
   decreaseCooldowns() {
     this.fighters.forEach((fighter) => {
       if (fighter.turno === "ataque") {
-        // Diminuir o cooldown dos ataques e garantir que não fique abaixo de 0
         Object.keys(fighter.attacks).forEach((key) => {
           const attack = fighter.attacks[key];
           attack.currentCooldown = Math.max(attack.currentCooldown - 1, 0);
@@ -45,10 +44,8 @@ export class Game {
   addRound() {
     this.round += 1;
 
-    this.decreaseCooldowns(); // Reduz o cooldown de cada fighter
+    this.decreaseCooldowns();
   }
-  //vamos fazer o jogo funcionar por turnos de ataque e defesa
-  //no inicio do jogo vamos fazer os jogadores irem para o centro
   startGame() {
     this.animate();
   }
@@ -60,16 +57,14 @@ export class Game {
   }
 
   drawBackgroundWithMessage() {
-    // Renderiza o fundo
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.renderer.draw(
       this.drawImage(this.map.background, 0, 0, this.map.width, this.map.height)
     );
 
-    // Renderiza a mensagem
-    this.context.fillStyle = "white"; // Cor do texto
-    this.context.font = "30px Arial"; // Fonte do texto
-    this.context.textAlign = "center"; // Alinhamento do texto
+    this.context.fillStyle = "white";
+    this.context.font = "30px Arial";
+    this.context.textAlign = "center";
     this.context.fillText(
       "Clique no jogo para iniciar",
       this.canvas.width / 2,
@@ -80,9 +75,9 @@ export class Game {
   inicioJogo() {
     this.drawBackgroundWithMessage();
     this.canvas.onclick = () => {
-      this.game_state.gameStarted = true; // Atualiza o estado para iniciar o jogo
-      this.audio.volume = 0.1; // Ajusta o volume da música
-      this.audio.loop = true; // Define a música para tocar em loop
+      this.game_state.gameStarted = true;
+      this.audio.volume = 0.1;
+      this.audio.loop = true;
       this.audio.play().catch((error) => {
         console.error("Erro ao reproduzir a música:", error);
       });
@@ -115,9 +110,8 @@ export class Game {
       const padding = 20;
       const rectWidth = metrics.width + padding * 2;
       const rectHeight = 40;
-      const radius = 10; // aqui define o quanto arredondado
+      const radius = 10;
 
-      // Função para desenhar retângulo com bordas arredondadas
       function roundRect(ctx, x, y, width, height, radius) {
         ctx.beginPath();
         ctx.moveTo(x + radius, y);
@@ -138,7 +132,6 @@ export class Game {
         ctx.fill();
       }
 
-      // Desenha o fundo arredondado
       this.context.fillStyle = "black";
       roundRect(
         this.context,
@@ -149,7 +142,6 @@ export class Game {
         radius
       );
 
-      // Desenha o texto por cima
       this.context.fillStyle = "white";
       this.context.fillText(text, x, y + (rectHeight - 36) / 2);
       this.fighters.forEach((fighter) => {
@@ -220,7 +212,7 @@ export class Game {
             cooldownsPlayer2[key] = attack.currentCooldown;
           });
           const teclasPressionadas = this.attackType;
-          const frozenAttack = [...this.attackType]; // cria uma cópia das teclas escolhidas
+          const frozenAttack = [...this.attackType];
           console.log("Teclas antes do envio:", teclasPressionadas);
           const dadosJogo = this.gerarEstadoDoJogo({
             turnoJogador1: this.fighters[0].turno,
@@ -274,7 +266,6 @@ export class Game {
                   const defense = this.defenseType.shift();
                   fighter.pressedKeys.shift();
                   if (result[i]) {
-                    // espera o inimigo atacar
                     fighter.block(defense);
                     const sound = new Audio();
                     sound.src = "../../Assets/Audios/swordBlock.mp3";
@@ -285,11 +276,11 @@ export class Game {
                         error
                       );
                     });
-                    await this.waitForAnimationEnd(fighter); // pequena pausa para o bloqueio
+                    await this.waitForAnimationEnd(fighter);
                     fighter.stopBlock();
                   } else {
                     let danoBase;
-                    const primeiroAtaque = this.turnAttacks.shift(); // pega e remove o primeiro ataque
+                    const primeiroAtaque = this.turnAttacks.shift();
 
                     switch (primeiroAtaque) {
                       case "q":
@@ -336,28 +327,9 @@ export class Game {
                 }
               }
 
-              // pequena pausa entre cada input (se quiser)
               await new Promise((r) => setTimeout(r, 200));
             }
-            /*
-                        // Após os 3 inputs:
-                        this.fighters.forEach(f => {
-                            if(f.turno === 'defesa'){
-                                f.takeDamage();
-                                const falseCount = result.filter(r => r === false).length;
-                                const percentCount = result.length > 0 ? falseCount / result.length : 0;                                const amount = 10 * percentCount;
-                                f.health -= amount;
-                                f.healthBar.update(f.health); // Atualiza a barra de saúde do inimigo
-                                if (f.health <= 0) {
-                                    f.health = 0;
-                                    document.getElementById('finalizaJogo').style.display = 'flex';
-                                    f.die();
-                                    this.gameEnded = true;
-                                }
-                            }
 
-                            
-                        });*/
             this.fighters.forEach((f) => {
               if (f.turno === "ataque") {
                 f.enfraquecerDuration = f.decrementMinZero(
@@ -431,13 +403,11 @@ export class Game {
   }
 
   getAvailableAttackKeys() {
-    // Retorna as teclas de ataque que não estão em cooldown para o jogador que está atacando
     const availableKeys = [];
     const attackingFighter = this.fighters.find(
       (fighter) => fighter.turno === "ataque"
-    ); // Encontrar o lutador que está atacando
+    );
     if (attackingFighter) {
-      // Mapeamento das teclas para seus tipos de ataque
       const attackTypeMap = {
         q: "Envenenar",
         w: "Enfraquecer",
@@ -631,7 +601,6 @@ export class Game {
 
       console.log("Enviando dados para predição:", dadosPredicao);
 
-      // Fazer a solicitação de predição
       const teclasPrevistas = await this.server.predicao(
         contexto,
         dadosPredicao
