@@ -163,8 +163,9 @@ export class Game {
           }
         });
 
+
         const allPlayersReady = this.fighters.every(
-          (f) => f.pressedKeys.length >= this.numberInputs
+          (f) => (f.pressedKeys?.length||0) >= this.numberInputs
         );
         if (
           (allPlayersReady ||
